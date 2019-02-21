@@ -5,6 +5,7 @@ import time
 import sys
 
 from kubeflow.testing import util
+from benchmark.test import deploy_utils
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO,
@@ -15,6 +16,8 @@ if __name__ == "__main__":
 
   benchmark_dir = str(os.environ['BENCHMARK_DIR'])
   cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
+
+  deploy_utils.ensure_aws_credentials()
 
   logs = util.run(["aws-k8s-tester", "eks", "delete", "cluster", "--path", cluster_manifest_path])
   # logs = util.run(["aws-k8s-tester", "eks", "delete", "cluster", "-h"])
