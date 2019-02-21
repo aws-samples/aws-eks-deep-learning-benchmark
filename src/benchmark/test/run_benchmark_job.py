@@ -25,12 +25,6 @@ def parse_args():
 
   parser.add_argument(
     "--github_secret_name", default='github-token', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--benchmark_dir",
-    default=None,
-    type=str,
-    help=("The source directory of all repositories.")
   )
 
   args, _ = parser.parse_known_args()
@@ -39,7 +33,7 @@ def parse_args():
 def run_benchmark_job():
   """Run a smoke test."""
   args = parse_args()
-  app_dir = os.path.join(args.benchmark_dir, "ks-app")
+  app_dir = os.path.join(str(os.environ['BENCHMARK_DIR']), "ks-app")
   
   kubeconfig_path = str(os.environ['KUBECONFIG'])
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)

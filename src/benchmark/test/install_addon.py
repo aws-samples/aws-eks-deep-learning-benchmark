@@ -170,7 +170,7 @@ def install_addon():
 
   # Setup GPU Device Plugin
   install_gpu_drivers(api_client)
-  # wait_for_gpu_driver_install(api_client)
+  wait_for_gpu_driver_install(api_client)
 
   # Setup ksonnet application
   app_dir = deploy_utils.setup_ks_app(base_dir, namespace, api_client)

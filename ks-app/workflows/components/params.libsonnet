@@ -32,7 +32,7 @@
       clusterVersion: "1.11",
       githubSecretName: "github-token",
       githubSecretTokenKeyName: "GITHUB_TOKEN",
-      s3SecretName: "aws-credential",
+      s3SecretName: "aws-secret",
       s3SecretAccesskeyidKeyName: "AWS_ACCESS_KEY_ID",
       s3SecretSecretaccesskeyKeyName: "AWS_SECRET_ACCESS_KEY",
       nfsVolumeClaim: "benchmark-pvc",

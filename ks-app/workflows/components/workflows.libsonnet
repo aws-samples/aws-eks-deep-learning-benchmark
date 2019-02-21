@@ -181,8 +181,6 @@
                   template: "install-addon",
                 },
               ],
-              # Here. we assume ks file is ready, we just need to generate component
-              // dynamically generate this task list
               [
                 {
                   name: "run-benchmark-job",
@@ -216,12 +214,13 @@
           },
           $.new(_env, _params).buildTemplate(
             "checkout",
-            ["sh", srcDir + "/src/benchmark/test/download_source.sh", benchmarkSrcRootDir],
+            ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir],
           ),  // checkout
 
           $.new(_env, _params).buildTemplate("create-cluster", [
             "sh", srcDir + "/src/benchmark/test/fake_create.sh",
-          ]),  // create cluster
+          ], envVars=aws_credential_env
+          ),  // create cluster
 
           // $.new(_env, _params).buildTemplate("create-cluster", [
           //   "python",
@@ -239,10 +238,11 @@
           $.new(_env, _params).buildTemplate("install-addon", [
             "python",
             "-m",
-            "benchmark.test.deploy_kubeflow",
+            "benchmark.test.install_addon",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
-          ]),  // install addon
+          ], envVars=github_token_env + aws_credential_env
+          ),  // install addon
 
           $.new(_env, _params).buildTemplate("run-benchmark-job", [
             "python",
