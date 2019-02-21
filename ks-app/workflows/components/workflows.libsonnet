@@ -216,11 +216,11 @@
           },
           $.new(_env, _params).buildTemplate(
             "checkout",
-            ["sh", srcDir + "src/benchmark/test/download_source.sh", benchmarkSrcRootDir],
+            ["sh", srcDir + "/src/benchmark/test/download_source.sh", benchmarkSrcRootDir],
           ),  // checkout
 
           $.new(_env, _params).buildTemplate("create-cluster", [
-            "sh", srcDir + "src/benchmark/test/fake_create.sh",
+            "sh", srcDir + "/src/benchmark/test/fake_create.sh",
           ]),  // create cluster
 
           // $.new(_env, _params).buildTemplate("create-cluster", [
@@ -263,7 +263,7 @@
           ),  // teardown cluster
 
           $.new(_env, _params).buildTemplate("copy-results", [
-            "sh", srcDir + "src/benchmark/test/copy_results.sh",
+            "sh", srcDir + "/src/benchmark/test/copy_results.sh",
           ]),  // copy-results
 
           // $.new(_env, _params).buildTemplate("copy-results", [
