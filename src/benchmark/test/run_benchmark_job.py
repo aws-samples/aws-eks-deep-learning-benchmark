@@ -25,7 +25,6 @@ def parse_args():
 
   parser.add_argument(
     "--github_secret_name", default='github-token', type=str, help=("The namespace to use."))
-  )
 
   args, _ = parser.parse_known_args()
   return args

@@ -7,6 +7,7 @@ import subprocess
 import time
 import sys
 import yaml
+import base64
 
 from kubeflow.testing import util
 
@@ -110,10 +111,21 @@ if __name__ == "__main__":
   cluster_spec['worker-node-ami'] = args.ami
   cluster_spec['node-count'] = args.node_count
 
-
   with open(cluster_manifest_path, "w") as stream: 
     yaml.dump(cluster_spec, stream, default_flow_style=False, allow_unicode=True)
 
+  # TODO: Remove this block once this done 
+  # https://github.com/aws/aws-k8s-tester/issues/42
+  # Add AWS Credential file
+  aws_credential_dir = "/root/.aws"
+  aws_credential_path = os.path.join(aws_credential_dir, "credential")
+  util.makedirs(aws_credential_dir)
+
+  with open(aws_credential_path, "w") as file:
+    file.write("[default]")
+    file.write("aws_access_key_id = " + base64.b64decode(os.environ['AWS_ACCESS_KEY_ID']))
+    file.write("aws_secret_access_key = " + base64.b64decode(os.environ['AWS_SECRET_ACCESS_KEY']))
+  
 
   # Create cluster based on modified manifest
   create_cluster_log = util.run(["aws-k8s-tester", "eks", "create", "cluster", "--path", cluster_manifest_path])
