@@ -40,7 +40,9 @@ def run_benchmark_job():
   """Run a smoke test."""
   args = parse_args()
   app_dir = os.path.join(args.benchmark_dir, "ks-app")
-  api_client = deploy_utils.create_k8s_client()
+  
+  kubeconfig_path = str(os.environ['KUBECONFIG'])
+  api_client = deploy_utils.create_k8s_client(kubeconfig_path)
   
   namespace = args.namespace
   job_name = args.experiment_name
@@ -57,7 +59,7 @@ def run_benchmark_job():
   util.run(cmd.split(), cwd=app_dir)
   cmd = job_config_prefix +  "mainJobKsPrototype " + args.training_job_prototype
   util.run(cmd.split(), cwd=app_dir)
-  cmd = job_config_prefix +  "mainJobConfig " + job_name
+  cmd = job_config_prefix +  "mainJobConfig " + args.training_job_config
   util.run(cmd.split(), cwd=app_dir)
 
   cmd = job_config_prefix + "githubTokenSecret " + args.github_secret_name
@@ -66,7 +68,7 @@ def run_benchmark_job():
   util.run(cmd.split(), cwd=app_dir)
   cmd = job_config_prefix +  "controllerImage seedjeffwan/configurator:latest" 
   util.run(cmd.split(), cwd=app_dir)
-  cmd = job_config_prefix +  "postJobImage seedjeffwan/configurator:latest"
+  cmd = job_config_prefix +  "postJobImage seedjeffwan/mpi-post-processor:latest"
   util.run(cmd.split(), cwd=app_dir)
 
   # cmd = "ks param set " + job_name + " config_args -- --config-file=" + pvc_mount + \
@@ -79,7 +81,7 @@ def run_benchmark_job():
   apply_command = ["ks", "apply", "default", "-c", job_name]
   util.run(apply_command, cwd=app_dir)
 
-  # use timeout setting here.
+  # TODO: expose timeout setting here.
   deploy_utils.wait_for_benchmark_job(job_name, namespace)
   deploy_utils.cleanup_benchmark_job(app_dir, job_name)
 

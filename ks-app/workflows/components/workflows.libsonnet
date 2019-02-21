@@ -32,7 +32,7 @@
     // Fixed names won't change. Doesn't need to be passed from params
     // mountPath is the directory where the volume to store the test data
     // should be mounted.
-    local mountPath = "/mnt/" + "test-data-volume",
+    local mountPath = "/mnt/benchmark",
     // benchmarkDir is the root directory for all data for a particular test run.
     local benchmarkDir = mountPath + "/" + params.name,
     // benchmarkOutputDir is the directory to sync to GCS to contain the output for this job.
@@ -41,17 +41,17 @@
     // Source directory where all repos should be checked out
     local benchmarkSrcRootDir = benchmarkDir + "/src",
     local benchmarkKubeConfigPath = benchmarkDir + "/kubeconfig",
-    local srcDir = benchmarkSrcRootDir + "/aws-k8s-benchmark",
+    local srcDir = benchmarkSrcRootDir + "/jeffwan/ml-benchmark",
     // The directory containing the py scripts for testing
-    local srcTestPyDir = srcDir + "/scripts",
+    local srcTestPyDir = srcDir + "/src",
     // The directory within the kubeflow_testing submodule containing
     // py scripts to use.
     local srcKubeTestPyDir = benchmarkSrcRootDir + "/kubeflow/testing/py",
     // The name of the NFS volume claim to use for test files.
     // local nfsVolumeClaim = "kubeflow-testing";
-    local nfsVolumeClaim = "nfs-external",
+    local nfsVolumeClaim = params.nfsVolumeClaim,
     // The name to use for the volume to use to contain test data.
-    local dataVolume = "kubeflow-test-volume",
+    local dataVolume = params.nfsVolume,
 
     // Optional
     local placement_group = if params.placement_group == "true" then 
@@ -124,6 +124,10 @@
             name: dataVolume,
             mountPath: mountPath,
           },
+          {
+            name: "aws-secret",
+            mountPath: "/root/.aws/credentials",
+          },
         ],
       },
       sidecars: sidecars,
@@ -144,6 +148,12 @@
             name: dataVolume,
             persistentVolumeClaim: {
               claimName: nfsVolumeClaim,
+            },
+          },
+          {
+            name: "aws-secret",
+            secret: {
+              secretName: "aws-secret"
             },
           },
         ],  // volumes
@@ -171,18 +181,12 @@
                   template: "install-addon",
                 },
               ],
-              [
-                {
-                  name: "wait-for-deployment",
-                  template: "wait-for-deployment",
-                },
-              ],
               # Here. we assume ks file is ready, we just need to generate component
               // dynamically generate this task list
               [
                 {
-                  name: "run-benchmark",
-                  template: "run-benchmark",
+                  name: "run-benchmark-job",
+                  template: "run-benchmark-job",
                 },
               ],
             ],
@@ -198,8 +202,8 @@
               ],
               [
                 {
-                  name: "copy-artifacts",
-                  template: "copy-artifacts",
+                  name: "copy-results",
+                  template: "copy-results",
                 },
               ],
               [
@@ -212,29 +216,33 @@
           },
           $.new(_env, _params).buildTemplate(
             "checkout",
-            ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir],
+            ["sh", srcDir + "src/benchmark/test/download_source.sh", benchmarkSrcRootDir],
           ),  // checkout
 
           $.new(_env, _params).buildTemplate("create-cluster", [
-            "python",
-            "-m", 
-            "benchmark.test.create_cluster.py",
-            "--region=" + params.region,
-            "--az=" + params.az,
-            placement_group,
-            "--ami=" + params.ami,
-            "--cluster_version=" + params.clusterVersion,
-            "--instance_type=" + "p3.2xlarge",
-            "--node_count=" + "1",
+            "sh", srcDir + "src/benchmark/test/fake_create.sh",
           ]),  // create cluster
 
-          $.new(_env, _params).buildTemplate("install_addons", [
+          // $.new(_env, _params).buildTemplate("create-cluster", [
+          //   "python",
+          //   "-m", 
+          //   "benchmark.test.create_cluster.py",
+          //   "--region=" + params.region,
+          //   "--az=" + params.az,
+          //   placement_group,
+          //   "--ami=" + params.ami,
+          //   "--cluster_version=" + params.clusterVersion,
+          //   "--instance_type=" + "p3.2xlarge",
+          //   "--node_count=" + "1",
+          // ]),  // create cluster
+
+          $.new(_env, _params).buildTemplate("install-addon", [
             "python",
             "-m",
             "benchmark.test.deploy_kubeflow",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
-          ]),  // install addons
+          ]),  // install addon
 
           $.new(_env, _params).buildTemplate("run-benchmark-job", [
             "python",
@@ -255,12 +263,16 @@
           ),  // teardown cluster
 
           $.new(_env, _params).buildTemplate("copy-results", [
-            "python",
-            "-m",
-            "benchmark.testing.copy-results",
-            "--output_dir=" + benchmarkOutputDir,
-            "--bucket=" + params.bucket,
-          ]),  // copy-artifacts
+            "sh", srcDir + "src/benchmark/test/copy_results.sh",
+          ]),  // copy-results
+
+          // $.new(_env, _params).buildTemplate("copy-results", [
+          //   "python",
+          //   "-m",
+          //   "benchmark.testing.copy-results",
+          //   "--output_dir=" + benchmarkOutputDir,
+          //   "--bucket=" + params.bucket,
+          // ]),  // copy-results
 
           $.new(_env, _params).buildTemplate("delete-test-dir", [
             "bash",

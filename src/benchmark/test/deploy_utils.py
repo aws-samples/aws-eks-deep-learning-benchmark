@@ -16,10 +16,10 @@ def set_clusterrole(namespace):
           --clusterrole=cluster-admin --serviceaccount=" + namespace + ":default"
   util.run(cmd.split())
 
-def create_k8s_client():
+def create_k8s_client(kubeconfig):
   # We need to load the kube config so that we can have credentials to
   # talk to the APIServer.
-  util.load_kube_config(persist_config=False)
+  util.load_kube_config(config_file=kubeconfig, persist_config=False)
 
   # Create an API client object to talk to the K8s master.
   api_client = k8s_client.ApiClient()
@@ -199,9 +199,9 @@ def wait_for_benchmark_job(job_name, namespace, timeout_minutes=20, replicas=1):
   VERSION = "v1alpha1"
   PLURAL = "workflows"
 
-  while datetime.datetime.now() > end_time:
+  while datetime.datetime.now() < end_time:
     workflow = crd_api.get_namespaced_custom_object(GROUP, VERSION, namespace, PLURAL, job_name)
-    if workflow and workflow.status and workflow.status.phase and workflow.status.phase == "Succeeded":
+    if workflow and workflow['status'] and workflow['status']['phase'] and workflow['status']['phase'] == "Succeeded":
       logging.info("Job Completed")
       return workflow
     logging.info("Waiting for job %s:%s", namespace, job_name)    

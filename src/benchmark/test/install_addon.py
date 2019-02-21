@@ -3,6 +3,7 @@ import logging
 import yaml
 import datetime
 import urllib
+import os
 
 from kubernetes import client as k8s_client
 from kubernetes.client import rest
@@ -164,7 +165,8 @@ def install_addon():
   args = parse_args()
   namespace = args.namespace
   base_dir = args.base_dir
-  api_client = deploy_utils.create_k8s_client()
+  kubeconfig_path = str(os.environ['KUBECONFIG'])
+  api_client = deploy_utils.create_k8s_client(kubeconfig_path)
 
   # Setup GPU Device Plugin
   install_gpu_drivers(api_client)

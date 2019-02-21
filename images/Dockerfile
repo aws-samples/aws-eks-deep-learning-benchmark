@@ -35,9 +35,6 @@ RUN pip install request && \
     pip install google-api-python-client && \
     pip install prometheus_client
 
-# Copy scripts
-COPY images/download_source.sh /usr/local/bin/
-
 WORKDIR $GOPATH/src/github.com/aws/aws-k8s-tester/
 
 

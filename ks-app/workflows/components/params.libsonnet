@@ -21,12 +21,10 @@
       versionTag: null,
     },
     workflows: {
-      name: "kubebench-test",
+      name: "20200220-2131",
       namespace: "kubeflow-test-infra",
-    
       bucket: "aws-benchmark-testing",
-      
-      image: "runner",
+      image: "seedjeffwan/benchmark-runner:latest",
       region: "us-west",
       az: "us-west-2",
       ami: "ami_id",
@@ -37,25 +35,9 @@
       s3SecretName: "aws-credential",
       s3SecretAccesskeyidKeyName: "AWS_ACCESS_KEY_ID",
       s3SecretSecretaccesskeyKeyName: "AWS_SECRET_ACCESS_KEY",
-
-      experiments:[
-        {
-          gpu: 1,
-          workers: 1
-        },
-        {
-          gpu: 2,
-          workers: 1
-        },
-        {
-          gpu: 4,
-          workers: 1
-        },
-        {
-          gpu: 8,
-          workers: 1
-        },
-      ],
+      nfsVolumeClaim: "benchmark-pvc",
+      nfsVolume: "benchmark-pv",
+      # consider to install NFS inside here?
     },
   },
 }
