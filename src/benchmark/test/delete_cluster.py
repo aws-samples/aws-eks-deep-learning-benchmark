@@ -4,7 +4,7 @@ import logging
 import time
 import sys
 
-import kubeflow.testing import util
+from kubeflow.testing import util
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO,

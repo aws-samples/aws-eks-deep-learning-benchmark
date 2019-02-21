@@ -31,9 +31,16 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.11.0/b
     chmod a+x /usr/local/bin/kubectl
 
 # Use Python 2.7 by default. TODO: upgrade to 3.6 later
-RUN pip install request && \
-    pip install google-api-python-client && \
-    pip install prometheus_client
+RUN pip install kubernetes \
+                request \
+                pyyaml \
+                boto3 \  
+                google-api-python-client \
+                google-cloud-storage \
+                prometheus_client
+
+
+COPY images/download_source.sh /usr/local/bin
 
 WORKDIR $GOPATH/src/github.com/aws/aws-k8s-tester/
 
