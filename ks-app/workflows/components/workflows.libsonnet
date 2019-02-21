@@ -54,7 +54,7 @@
     local dataVolume = params.nfsVolume,
 
     // Optional
-    local placement_group = if params.placement_group == "true" then 
+    local placementGroup = if params.placementGroup == "true" then 
       "--placement_group"
     else 
       "--no-placement_group",
@@ -194,14 +194,14 @@
             steps: [
               [
                 {
-                  name: "teardown-cluster",
-                  template: "teardown-cluster",
+                  name: "copy-results",
+                  template: "copy-results",
                 },
               ],
               [
                 {
-                  name: "copy-results",
-                  template: "copy-results",
+                  name: "teardown-cluster",
+                  template: "teardown-cluster",
                 },
               ],
               [
@@ -217,23 +217,24 @@
             ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir],
           ),  // checkout
 
+          // $.new(_env, _params).buildTemplate("create-cluster", [
+          //   "sh", srcDir + "/src/benchmark/test/fake_create.sh",
+          // ], envVars=aws_credential_env
+          // ),  // create cluster
+
           $.new(_env, _params).buildTemplate("create-cluster", [
-            "sh", srcDir + "/src/benchmark/test/fake_create.sh",
+            "python",
+            "-m", 
+            "benchmark.test.create_cluster",
+            "--region=" + params.region,
+            "--az=" + params.az,
+            placementGroup,
+            "--ami=" + params.ami,
+            "--cluster_version=" + params.clusterVersion,
+            "--instance_type=" + params.instanceType,
+            "--node_count=" + "1",
           ], envVars=aws_credential_env
           ),  // create cluster
-
-          // $.new(_env, _params).buildTemplate("create-cluster", [
-          //   "python",
-          //   "-m", 
-          //   "benchmark.test.create_cluster.py",
-          //   "--region=" + params.region,
-          //   "--az=" + params.az,
-          //   placement_group,
-          //   "--ami=" + params.ami,
-          //   "--cluster_version=" + params.clusterVersion,
-          //   "--instance_type=" + "p3.2xlarge",
-          //   "--node_count=" + "1",
-          // ]),  // create cluster
 
           $.new(_env, _params).buildTemplate("install-addon", [
             "python",
@@ -252,19 +253,19 @@
             "--namespace=" + params.namespace,
             "--experiment_name=" + "hehe",
             "--training_job_config=" + "mpi/mpi-job-dummy.yaml"
-          ], envVars=github_token_env,
+          ], envVars=github_token_env + aws_credential_env,
           ),  // run kubebench job
-
-          $.new(_env, _params).buildTemplate("teardown-cluster", [
-            "python",
-            "-m",
-            "benchmark.test.delete_cluster.py",
-          ], envVars=aws_credential_env,
-          ),  // teardown cluster
 
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh",
           ]),  // copy-results
+
+          $.new(_env, _params).buildTemplate("teardown-cluster", [
+            "python",
+            "-m",
+            "benchmark.test.delete_cluster",
+          ], envVars=aws_credential_env,
+          ),  // teardown cluster
 
           // $.new(_env, _params).buildTemplate("copy-results", [
           //   "python",
