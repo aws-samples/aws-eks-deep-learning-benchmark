@@ -6,8 +6,6 @@
       template: e.experiment,
     },
   }.result,
-  
-
 
   awsParams:: {
     //  Name of the k8s secrets containing S3 credentials
@@ -110,13 +108,15 @@
             "benchmark.test.run_benchmark_job",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
-            "--experiment_name=" + e.experiment, // use expriment name
-            "--training_job_pkg=" + "mpi-job",
-            "--training_job_prototype=" + "mpi-job-custom",
-            "--training_job_config=" + "mpi/mpi-job-dummy.yaml"
+            "--experiment_name=" + e.experiment,
+            "--training_job_pkg=" + e.trainingJobPkg,
+            "--training_job_prototype=" + e.trainingJobPrototype,
+            "--training_job_config=" + e.trainingJobConfig
           ], envVars=github_token_env + aws_credential_env,
         ),  // run kubebench job
     }.result,
+
+    local benchmarksteps = std.map(buildBenchmarkTemplate, params.experiments),
 
     // Build an Argo step template to execute a particular command.
     // step_name: Name for the template
@@ -263,20 +263,6 @@
           ], envVars=github_token_env + aws_credential_env
           ),  // install addon
 
-          //std.map(buildBenchmarkTemplate, params.experiments), // flat array to list
-          $.new(_env, _params).buildTemplate("run-benchmark-job", [
-            "python",
-            "-m",
-            "benchmark.test.run_benchmark_job",
-            "--base_dir=" + benchmarkDir,
-            "--namespace=" + params.namespace,
-            "--experiment_name=" + "hehe", // use expriment name
-            "--training_job_pkg=" + "mpi-job",
-            "--training_job_prototype=" + "mpi-job-custom",
-            "--training_job_config=" + "mpi/mpi-job-dummy.yaml"
-          ], envVars=github_token_env + aws_credential_env,
-          ),  // run kubebench job
-
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh",
           ]),  // copy-results
@@ -301,7 +287,7 @@
             "-c",
             "rm -rf " + benchmarkDir,
           ]),  // delete test dir
-        ],  // templates
+        ] + benchmarksteps,  // templates
       },
     },  // benchmark
   },  // parts
