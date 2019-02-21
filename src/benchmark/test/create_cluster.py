@@ -104,6 +104,8 @@ if __name__ == "__main__":
   if not os.path.exists(kubeconfig_file_path):
     open(kubeconfig_file_path, 'a').close()
 
+  # we already package `aws-iam-authenticator` in path.
+  cluster_spec['aws-iam-authenticator-path'] = "/usr/local/bin/aws-iam-authenticator"
   cluster_spec['enable-worker-node-ssh'] = False
   cluster_spec['kubeconfig-path'] = kubeconfig_file_path
   cluster_spec["aws-region"] = args.region
