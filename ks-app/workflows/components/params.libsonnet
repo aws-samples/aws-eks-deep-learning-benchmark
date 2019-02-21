@@ -25,9 +25,9 @@
       namespace: "kubeflow-test-infra",
       bucket: "aws-benchmark-testing",
       image: "seedjeffwan/benchmark-runner:latest",
-      region: "us-west",
+      region: "us-west-2",
       az: "us-west-2",
-      ami: "ami_id",
+      ami: "ami-095922d81242d0528",
       instanceType: "p2.xlarge",
       placementGroup: "true",
       clusterVersion: "1.11",
@@ -39,6 +39,14 @@
       nfsVolumeClaim: "benchmark-pvc",
       nfsVolume: "benchmark-pv",
       # consider to install NFS inside here?
+      experiments: [
+        {
+          experiment: "experiment1"
+        },
+        {
+          experiment: "experiment2"
+        },
+      ],
     },
   },
 }

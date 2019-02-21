@@ -1,4 +1,14 @@
 {
+  buildArgoBenchmarkStep:: function(e) {
+    result:: 
+    {
+      name: e.experiment,
+      template: e.experiment,
+    },
+  }.result,
+  
+
+
   awsParams:: {
     //  Name of the k8s secrets containing S3 credentials
     awsSecretName: "",
@@ -91,6 +101,22 @@
         },
       }
     ],
+    
+    local buildBenchmarkTemplate = function(e) {
+      result:: 
+        $.new(_env, _params).buildTemplate(e.experiment, [
+            "python",
+            "-m",
+            "benchmark.test.run_benchmark_job",
+            "--base_dir=" + benchmarkDir,
+            "--namespace=" + params.namespace,
+            "--experiment_name=" + e.experiment, // use expriment name
+            "--training_job_pkg=" + "mpi-job",
+            "--training_job_prototype=" + "mpi-job-custom",
+            "--training_job_config=" + "mpi/mpi-job-dummy.yaml"
+          ], envVars=github_token_env + aws_credential_env,
+        ),  // run kubebench job
+    }.result,
 
     // Build an Argo step template to execute a particular command.
     // step_name: Name for the template
@@ -124,10 +150,6 @@
             name: dataVolume,
             mountPath: mountPath,
           },
-          {
-            name: "aws-secret",
-            mountPath: "/root/.aws/credentials",
-          },
         ],
       },
       sidecars: sidecars,
@@ -148,12 +170,6 @@
             name: dataVolume,
             persistentVolumeClaim: {
               claimName: nfsVolumeClaim,
-            },
-          },
-          {
-            name: "aws-secret",
-            secret: {
-              secretName: "aws-secret"
             },
           },
         ],  // volumes
@@ -181,7 +197,9 @@
                   template: "install-addon",
                 },
               ],
+              //std.map($.buildArgoBenchmarkStep, params.experiments),
               [
+                # Run benchmark in parallel
                 {
                   name: "run-benchmark-job",
                   template: "run-benchmark-job",
@@ -245,13 +263,16 @@
           ], envVars=github_token_env + aws_credential_env
           ),  // install addon
 
+          //std.map(buildBenchmarkTemplate, params.experiments), // flat array to list
           $.new(_env, _params).buildTemplate("run-benchmark-job", [
             "python",
             "-m",
             "benchmark.test.run_benchmark_job",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
-            "--experiment_name=" + "hehe",
+            "--experiment_name=" + "hehe", // use expriment name
+            "--training_job_pkg=" + "mpi-job",
+            "--training_job_prototype=" + "mpi-job-custom",
             "--training_job_config=" + "mpi/mpi-job-dummy.yaml"
           ], envVars=github_token_env + aws_credential_env,
           ),  // run kubebench job
