@@ -118,10 +118,10 @@ if __name__ == "__main__":
   # https://github.com/aws/aws-k8s-tester/issues/42
   # Add AWS Credential file
   aws_credential_dir = "/root/.aws"
-  aws_credential_path = os.path.join(aws_credential_dir, "credential")
+  aws_credential_path = os.path.join(aws_credential_dir, "credentials")
   util.makedirs(aws_credential_dir)
 
-  with open(aws_credential_path, "w") as file:
+  with open(aws_credential_path, "a") as file:
     file.write("[default]")
     file.write("aws_access_key_id = " + base64.b64decode(os.environ['AWS_ACCESS_KEY_ID']))
     file.write("aws_secret_access_key = " + base64.b64decode(os.environ['AWS_SECRET_ACCESS_KEY']))
