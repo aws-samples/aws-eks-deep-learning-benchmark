@@ -9,7 +9,7 @@
     workflows: {
       name: "benchmark-20190222-4",
       namespace: "default",
-      bucket: "dl-benchmark-resource",
+      bucket: "dl-benchmark-result",
       image: "seedjeffwan/benchmark-runner:latest",
       region: "us-west-2",
       az: "us-west-2",
@@ -26,28 +26,28 @@
       nfsVolume: "benchmark-pv",
       experiments: [
         {
-          experiment: "experiment-20190221-1", 
+          experiment: "experiment-20190221-11", 
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-1.yaml"
+          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
         },
         {
-          experiment: "experiment-20190221-2",
+          experiment: "experiment-20190221-12",
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-2.yaml"
+          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
         },
         {
-          experiment: "experiment-20190221-3", 
+          experiment: "experiment-20190221-13", 
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-4.yaml"
+          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
         },
         {
-          experiment: "experiment-20190221-4", 
+          experiment: "experiment-20190221-14", 
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-8.yaml"
+          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
         },
       ],
     },

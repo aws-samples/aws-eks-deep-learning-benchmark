@@ -181,12 +181,12 @@
                   template: "checkout",
                 },
               ],
-              [
-                {
-                  name: "create-cluster",
-                  template: "create-cluster",
-                },
-              ],
+              // [
+              //   {
+              //     name: "create-cluster",
+              //     template: "create-cluster",
+              //   },
+              // ],
               [
                 {
                   name: "install-gpu-driver",
@@ -200,11 +200,13 @@
                   name: "install-github-secret",
                   template: "install-github-secret",
                 },
-                {
-                  name: "setup-job-config",
-                  template: "setup-job-config",
-                },
               ],
+              // [
+              //   {
+              //     name: "setup-job-config",
+              //     template: "setup-job-config",
+              //   },
+              // ],
               std.map($.buildArgoBenchmarkStep, params.experiments),
             ],
           },
@@ -217,18 +219,18 @@
                   template: "copy-results",
                 },
               ],
-              [
-                {
-                  name: "teardown-cluster",
-                  template: "teardown-cluster",
-                },
-              ],
-              [
-                {
-                  name: "delete-test-dir",
-                  template: "delete-test-dir",
-                },
-              ],
+              // [
+              //   {
+              //     name: "teardown-cluster",
+              //     template: "teardown-cluster",
+              //   },
+              // ],
+              // [
+              //   {
+              //     name: "delete-test-dir",
+              //     template: "delete-test-dir",
+              //   },
+              // ],
             ],
           },
           $.new(_env, _params).buildTemplate(
@@ -282,14 +284,27 @@
             "--github-secret-name=" + params.githubSecretName,
           ], envVars=github_token_env + aws_credential_env
           ),  // install github secret
-          $.new(_env, _params).buildTemplate(
-            "setup-job-config",
-            ["sh", srcDir + "/src/benchmark/test/setup_job_config.sh", benchmarkDir],
+          
+          $.new(_env, _params).buildTemplate("setup-job-config",[
+            "sh", srcDir + "/src/benchmark/test/setup_job_config.sh", params.namespace,
+          ], envVars=aws_credential_env,
           ),  // setup_job_config
 
+          // $.new(_env, _params).buildTemplate("run-benchmark-job", [	
+          //   "python",	
+          //   "-m",	
+          //   "benchmark.test.run_benchmark_job",	
+          //   "--base_dir=" + benchmarkDir,	
+          //   "--namespace=" + params.namespace,	
+          //   "--experiment_name=" + "text-experiment", // use expriment name	
+          //   "--training_job_pkg=" + "mpi-job",	
+          //   "--training_job_prototype=" + "mpi-job-custom",	
+          //   "--training_job_config=" + "mpi/mpi-job-dummy.yaml"	
+          // ], envVars=github_token_env + aws_credential_env,	
+          // ),  // run kubebench job	
+
           $.new(_env, _params).buildTemplate("copy-results", [
-            "sh", srcDir + "/src/benchmark/test/copy_results.sh",
-            params.namespace, params.bucket
+            "sh", srcDir + "/src/benchmark/test/copy_results.sh", params.namespace, params.bucket,
           ], envVars=aws_credential_env
           ),  // copy-results
 

@@ -5,6 +5,7 @@ import datetime
 import time
 import urllib
 import os
+import base64
 
 from kubernetes import client as k8s_client
 from kubernetes.client import rest
@@ -51,7 +52,7 @@ def install_github_secret(api_client, namespace, secret_name, github_token):
   except rest.ApiException as e:
     # Status appears to be a string.
     if e.status == 409:
-      logging.info("GPU driver daemon set has already been installed")
+      logging.info("Github token has already been installed")
     else:
       raise
 
@@ -71,7 +72,7 @@ def install_addon():
 
   # Deploy Github Secret
   github_token = str(os.environ['GITHUB_TOKEN'])
-  install_github_secret(api_client, namespace, args.github_secret_name, github_token)
+  install_github_secret(api_client, namespace, args.github_secret_name, base64.b64encode(github_token))
 
 if __name__ == "__main__":
   install_addon()
