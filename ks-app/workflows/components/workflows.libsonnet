@@ -189,8 +189,16 @@
               ],
               [
                 {
-                  name: "install-addon",
-                  template: "install-addon",
+                  name: "install-gpu-driver",
+                  template: "install-gpu-driver",
+                },
+                {
+                  name: "install-kubeflow",
+                  template: "install-kubeflow",
+                },
+                {
+                  name: "install-github-secret",
+                  template: "install-github-secret",
                 },
               ],
               std.map($.buildArgoBenchmarkStep, params.experiments),
@@ -243,15 +251,33 @@
           ], envVars=aws_credential_env
           ),  // create cluster
 
-          $.new(_env, _params).buildTemplate("install-addon", [
+          $.new(_env, _params).buildTemplate("install-gpu-driver", [
             "python",
             "-m",
-            "benchmark.test.install_addon",
+            "benchmark.test.install_gpu_driver",
+            "--base_dir=" + benchmarkDir,
+            "--namespace=" + params.namespace,
+          ], envVars=github_token_env + aws_credential_env
+          ),  // install gpu driver
+
+          $.new(_env, _params).buildTemplate("install-kubeflow", [
+            "python",
+            "-m",
+            "benchmark.test.install_kubeflow",
+            "--base_dir=" + benchmarkDir,
+            "--namespace=" + params.namespace,
+          ], envVars=github_token_env + aws_credential_env
+          ),  // install kubeflow
+
+          $.new(_env, _params).buildTemplate("install-github-secret", [
+            "python",
+            "-m",
+            "benchmark.test.install_github_secret",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
             "--github-secret-name=" + params.githubSecretName,
           ], envVars=github_token_env + aws_credential_env
-          ),  // install addon
+          ),  // install github secret
 
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh",
