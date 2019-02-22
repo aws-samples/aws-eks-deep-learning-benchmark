@@ -7,7 +7,7 @@
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
     workflows: {
-      name: "benchmark-20190222-1",
+      name: "benchmark-20190222-3",
       namespace: "default",
       bucket: "dl-benchmark-resource",
       image: "seedjeffwan/benchmark-runner:latest",
@@ -29,13 +29,25 @@
           experiment: "experiment-20190221-1", 
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
+          trainingJobConfig: "mpi/mpi-job-1.yaml"
         },
         {
           experiment: "experiment-20190221-2",
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
+          trainingJobConfig: "mpi/mpi-job-2.yaml"
+        },
+        {
+          experiment: "experiment-20190221-3", 
+          trainingJobPkg: "mpi-job",
+          trainingJobPrototype: "mpi-job-custom",
+          trainingJobConfig: "mpi/mpi-job-4.yaml"
+        },
+        {
+          experiment: "experiment-20190221-4", 
+          trainingJobPkg: "mpi-job",
+          trainingJobPrototype: "mpi-job-custom",
+          trainingJobConfig: "mpi/mpi-job-8.yaml"
         },
       ],
     },

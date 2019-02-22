@@ -200,6 +200,10 @@
                   name: "install-github-secret",
                   template: "install-github-secret",
                 },
+                {
+                  name: "setup_job_config",
+                  template: "setup_job_config",
+                },
               ],
               std.map($.buildArgoBenchmarkStep, params.experiments),
             ],
@@ -278,6 +282,10 @@
             "--github-secret-name=" + params.githubSecretName,
           ], envVars=github_token_env + aws_credential_env
           ),  // install github secret
+          $.new(_env, _params).buildTemplate(
+            "setup_job_config",
+            ["sh", srcDir + "/src/benchmark/test/setup_job_config.sh", benchmarkDir],
+          ),  // setup_job_config
 
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh",
