@@ -8,6 +8,3 @@ kubectl --kubeconfig=$BENCHMARK_DIR/kubeconfig cp /tmp/mpi-job-1.yaml ${NAMESPAC
 kubectl --kubeconfig=$BENCHMARK_DIR/kubeconfig cp /tmp/mpi-job-2.yaml ${NAMESPACE}/${NFS_POD_NAME}:/exports/kubebench/config/mpi/
 kubectl --kubeconfig=$BENCHMARK_DIR/kubeconfig cp /tmp/mpi-job-4.yaml ${NAMESPACE}/${NFS_POD_NAME}:/exports/kubebench/config/mpi/
 kubectl --kubeconfig=$BENCHMARK_DIR/kubeconfig cp /tmp/mpi-job-8.yaml ${NAMESPACE}/${NFS_POD_NAME}:/exports/kubebench/config/mpi/
-
-BENCHMARK_ID=$(basename $BENCHMARK_DIR)
-aws s3 cp ${BENCHMARK_DIR}/ s3://${S3_BUCKET}/${BENCHMARK_ID}/ --recursive
