@@ -255,6 +255,7 @@
 
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh",
+            params.namespace, params.bucket
           ], envVars=aws_credential_env
           ),  // copy-results
 

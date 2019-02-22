@@ -34,7 +34,8 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.11.0/b
 RUN pip install kubernetes \
                 request \
                 pyyaml \
-                boto3 \  
+                boto3 \
+                awscli \ 
                 google-api-python-client \
                 google-cloud-storage \
                 prometheus_client
