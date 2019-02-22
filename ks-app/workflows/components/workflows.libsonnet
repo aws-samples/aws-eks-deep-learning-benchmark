@@ -23,11 +23,7 @@
     // URL for your s3-compatible endpoint.
     s3Endpoint: "s3.us-west-1.amazonaws.com",
   },
-  
-  githubParam:: {
-    githubSecretName: "",
-    githubSecretTokenKeyName: "GITHUB_TOKEN",
-  },
+
 
   // The name of test cluster
   //local clusterName = "kubebench-e2e-" + std.substr(name, std.length(name) - 4, 4),
@@ -253,6 +249,7 @@
             "benchmark.test.install_addon",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
+            "--github-secret-name=" + params.githubSecretName,
           ], envVars=github_token_env + aws_credential_env
           ),  // install addon
 

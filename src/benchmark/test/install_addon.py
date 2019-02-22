@@ -20,8 +20,14 @@ def parse_args():
     "--base_dir",
     default=None,
     type=str,
-    help=("The source directory of all repositories.")
-  )
+    help=("The source directory of all repositories."))
+
+  parser.add_argument(
+    "--github_secret_name",
+    default="github-token",
+    type=str,
+    help=("The github token to be created."))
+
 
   args, _ = parser.parse_known_args()
   return args
@@ -187,7 +193,31 @@ def install_addon():
   install_kubebench_nfs(api_client, app_dir, namespace)
 
   # Deploy Github Secret
+  github_token = str(os.environ['GITHUB_TOKEN'])
+  install_github_secret(api_client, namepsace, args.github_secret_name, github_token)
+
+def install_github_secret(api_client, namespace, secret_name, github_token):
+  """Install Github secret on the cluster.
+  Return:
+    secret: Secret for Github token
+  """
+  logging.info("Install Github secret.")
   
+  corev1_api = k8s_client.CoreV1Api(api_client)
+  try:
+    secret = client.V1Secret()
+    secret.metadata = client.V1ObjectMeta(name=secret_name)
+    secret.type = "Opaque"
+    secret.data = {"GITHUB_TOKEN": github_token}
+    
+    corev1_api.create_namespaced_secret(namespace, secret)
+  except rest.ApiException as e:
+    # Status appears to be a string.
+    if e.status == 409:
+      logging.info("GPU driver daemon set has already been installed")
+    else:
+      raise
+
 
 if __name__ == "__main__":
   install_addon()
