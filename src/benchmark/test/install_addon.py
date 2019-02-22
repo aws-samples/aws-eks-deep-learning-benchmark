@@ -194,7 +194,7 @@ def install_addon():
 
   # Deploy Github Secret
   github_token = str(os.environ['GITHUB_TOKEN'])
-  install_github_secret(api_client, namepsace, args.github_secret_name, github_token)
+  install_github_secret(api_client, namespace, args.github_secret_name, github_token)
 
 def install_github_secret(api_client, namespace, secret_name, github_token):
   """Install Github secret on the cluster.
