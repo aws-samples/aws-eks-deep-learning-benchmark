@@ -41,9 +41,8 @@ RUN pip install kubernetes \
                 prometheus_client
 
 
+# Copy utilities
 COPY images/download_source.sh /usr/local/bin
-
-WORKDIR $GOPATH/src/github.com/aws/aws-k8s-tester/
-
+COPY images/ /tmp/
 
 # docker build -t ${REGISTRY}/${REPO}:${TAG} -f images/Dockerfile .
