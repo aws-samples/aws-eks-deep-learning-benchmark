@@ -7,7 +7,7 @@
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
     workflows: {
-      name: "benchmark-20190222-3",
+      name: "benchmark-20190222-4",
       namespace: "default",
       bucket: "dl-benchmark-resource",
       image: "seedjeffwan/benchmark-runner:latest",
