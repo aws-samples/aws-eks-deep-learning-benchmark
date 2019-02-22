@@ -197,14 +197,7 @@
                   template: "install-addon",
                 },
               ],
-              //std.map($.buildArgoBenchmarkStep, params.experiments),
-              [
-                # Run benchmark in parallel
-                {
-                  name: "run-benchmark-job",
-                  template: "run-benchmark-job",
-                },
-              ],
+              std.map($.buildArgoBenchmarkStep, params.experiments),
             ],
           },
           {
@@ -265,7 +258,8 @@
 
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh",
-          ]),  // copy-results
+          ], envVars=aws_credential_env
+          ),  // copy-results
 
           $.new(_env, _params).buildTemplate("teardown-cluster", [
             "python",

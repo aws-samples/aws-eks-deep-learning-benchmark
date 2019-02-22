@@ -41,13 +41,13 @@
       # consider to install NFS inside here?
       experiments: [
         {
-          experiment: "20190221-experiment-1", 
+          experiment: "experiment-20190221-1", 
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
           trainingJobConfig: "mpi/mpi-job-dummy.yaml"
         },
         {
-          experiment: "20190221-experiment-2",
+          experiment: "experiment-20190221-2",
           trainingJobPkg: "mpi-job",
           trainingJobPrototype: "mpi-job-custom",
           trainingJobConfig: "mpi/mpi-job-dummy.yaml"
