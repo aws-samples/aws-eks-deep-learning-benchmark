@@ -1,0 +1,59 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: MPIJob
+metadata:
+  name: benchmark-gpu-aws-64
+spec:
+  replicas: 8
+  template:
+    spec:
+      imagePullPolicy: Always
+      containers:
+      - image: seedjeffwan/tf-cnn-benchmark:cuda10-hd0.16.0-tf1.13.1-py3.5
+        imagePullPolicy: Always
+        name: tensorflow-benchmarks
+        command:
+          - mpirun
+          - "-mca"
+          - "btl_tcp_if_exclude"
+          - "lo,docker0"
+          - "-mca"
+          - "pml"
+          - "ob1"
+          - "-mca"
+          - "btl"
+          - "^openib"
+          - "--bind-to"
+          - "socket"
+          - "-map-by"
+          - "slot"
+          - "-x"
+          - "LD_LIBRARY_PATH"
+          - "-x"
+          - "PATH"
+          - "-x"
+          - "NCCL_DEBUG=INFO"
+          - "-x"
+          - "NCCL_MIN_NRINGS=4"
+          - "-x"
+          - "HOROVOD_FUSION_THRESHOLD=16777216"
+          - "-x"
+          - "HOROVOD_HIERARCHICAL_ALLREDUCE=1"
+          - python
+          - models/resnet/tensorflow/train_imagenet_resnet_hvd.py
+          - --batch_size=256
+          - --model=resnet50
+          - --num_batches=1000
+          - --fp16
+          - --display_every=50
+          - --data_dir=/data/imagenet/train
+          - --lr_decay_mode=poly
+        resources:
+          limits:
+            nvidia.com/gpu: 8
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /data
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: fsx-claim
