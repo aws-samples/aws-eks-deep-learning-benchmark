@@ -4,6 +4,7 @@ FROM nvidia/cuda:10.0-devel-ubuntu16.04
 ENV TENSORFLOW_VERSION=r1.13
 ENV CUDNN_VERSION=7.4.2.24-1+cuda10.0
 ENV NCCL_VERSION=2.4.2-1+cuda10.0
+ENV BAZEL_VERSION 0.21.0
 
 # Python 2.7 or 3.5 is supported by Ubuntu Xenial out of the box
 ARG python=3.5
@@ -16,6 +17,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         vim \
         wget \
+        pkg-config \
+        zip \
+        g++ \
+        zlib1g-dev \
+        unzip \
         ca-certificates \
         libcudnn7=${CUDNN_VERSION} \
         libcudnn7-dev=${CUDNN_VERSION} \
@@ -24,18 +30,50 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libjpeg-dev \
         libpng-dev \
         python${PYTHON_VERSION} \
-        python${PYTHON_VERSION}-dev \
-        python{PYTHON_VERSION}-pip
+        python${PYTHON_VERSION}-dev
 
 RUN ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python
 
-# Install the TensorFlow pip package dependencies 
-RUN pip install six numpy wheel mock
-RUN git clone -v ${TENSORFLOW_VERSION} https://github.com/tensorflow/tensorflow.git /root/tensorflow
+RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
+    python get-pip.py && \
+    rm get-pip.py
 
-# Install bazel
-RUN wget -O /root/bazel.sh "https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-installer-linux-x86_64.sh"
-RUN chmod +x /root/bazel.sh && batch -c "/root/bazel.sh" && rm /root/bazel.sh
+# Install bazel, bazel depends on pkg-config zip g++ zlib1g-dev unzip
+RUN wget "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh" && \
+    chmod +x bazel-*.sh && \
+    ./bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh && \
+    rm bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh
+
+# Install the TensorFlow pip package dependencies 
+RUN pip install six numpy wheel mock h5py keras_preprocessing keras_applications
+RUN git clone --branch ${TENSORFLOW_VERSION} --depth=1 https://github.com/tensorflow/tensorflow.git /root/tensorflow
+
+WORKDIR "/root/tensorflow"
+
+# Configure the Tensorflow build
+ENV CI_BUILD_PYTHON=python
+ENV LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+ENV TF_NEED_CUDA=1
+ENV TF_NEED_MKL=1
+ENV TF_DOWNLOAD_MKL=1
+ENV TF_CUDA_COMPUTE_CAPABILITIES=7.0
+ENV CUDA_TOOLKIT_PATH=/usr/local/cuda
+ENV TF_CUDA_VERSION=10.0
+ENV TF_CUDNN_VERSION=7
+ENV CUDNN_INSTALL_PATH=/usr/lib/x86_64-linux-gnu/
+
+RUN bazel build -c opt \
+    --config=cuda \
+    --config=mkl \
+    --config=nogcp \
+    --config=nohdfs \
+    --config=noignite \
+    --config=nokafka \
+    --config=noaws \
+    --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" \
+    //tensorflow/tools/pip_package:build_pip_package
+RUN bazel-bin/tensorflow/tools/pip_package/build_pip_package ~/path_to_save_wheel
+RUN export WHEEL_PACKAGE=$(find ~/path_to_save_wheel -name "tensor*.whl") && pip install --upgrade --user $WHEEL_PACKAGE
 
 # Install Horovod, temporarily using CUDA stubs
 # /usr/local/cuda links to /usr/local/cuda-10.0
