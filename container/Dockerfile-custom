@@ -45,7 +45,9 @@ RUN wget "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}
     rm bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh
 
 # Install the TensorFlow pip package dependencies 
-RUN pip install six numpy wheel mock h5py keras_preprocessing keras_applications
+RUN pip install six numpy wheel mock h5py
+RUN pip install keras_applications==1.0.6 --no-deps 
+RUN pip install keras_preprocessing==1.0.5 --no-deps
 RUN git clone --branch ${TENSORFLOW_VERSION} --depth=1 https://github.com/tensorflow/tensorflow.git /root/tensorflow
 
 WORKDIR "/root/tensorflow"
@@ -69,7 +71,8 @@ ENV TF_CUDA_COMPUTE_CAPABILITIES=7.0
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} \
     tensorflow/tools/ci_build/builds/configured GPU \
-    bazel build -c opt \
+    bazel build -j 30 -c opt \
+    --config=monolithic \
     --config=cuda \
     --config=mkl \
     --config=nogcp \
@@ -83,11 +86,6 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
 RUN bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/pip
 RUN pip install --upgrade /tmp/pip/tensorflow-*.whl
 
-# Install Horovod, temporarily using CUDA stubs, /usr/local/cuda links to /usr/local/cuda-10.0
-RUN ldconfig /usr/local/cuda/targets/x86_64-linux/lib/stubs && \
-    HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_WITH_TENSORFLOW=1 pip install --no-cache-dir horovod && \
-    ldconfig
-
 # Install Open MPI 4.0.0
 RUN mkdir /tmp/openmpi && \
     cd /tmp/openmpi && \
@@ -99,6 +97,15 @@ RUN mkdir /tmp/openmpi && \
     make install && \
     ldconfig && \
     rm -rf /tmp/openmpi
+
+# Install Horovod, temporarily using CUDA stubs, /usr/local/cuda links to /usr/local/cuda-10.0
+# cd to root to avoid `sh: 0: getcwd() failed: No such file or directory` from last step
+# Move OpenMPI install to avoid failure `error: mpicxx -show failed (see error below), is MPI in $PATH?`
+# https://github.com/horovod/horovod/issues/137 https://github.com/horovod/horovod/blob/master/docs/troubleshooting.md
+RUN cd ~/ && \
+    ldconfig /usr/local/cuda/targets/x86_64-linux/lib/stubs && \
+    HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_WITH_TENSORFLOW=1 pip install --no-cache-dir horovod && \
+    ldconfig
 
 # Create a wrapper for OpenMPI to allow running as root by default
 RUN mv /usr/local/bin/mpirun /usr/local/bin/mpirun.real && \
