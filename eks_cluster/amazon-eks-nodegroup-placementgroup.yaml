@@ -325,6 +325,10 @@ Resources:
                      --stack  ${AWS::StackName} \
                      --resource NodeGroup  \
                      --region ${AWS::Region}
+            # Optimize GPU settings (turn the V100 knobs to 11)
+            sudo nvidia-persistenced
+            sudo nvidia-smi --auto-boost-default=0
+            sudo nvidia-smi -ac 877,1530
 
 Outputs:
 
