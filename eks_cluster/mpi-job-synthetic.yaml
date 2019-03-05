@@ -47,6 +47,9 @@ spec:
           - --display_every=50
           - --lr_decay_mode=poly
           - --synthetic
+          - --intra_op_parallelism_threads=2
+          - --inter_op_parallelism_threads=8
+          - --num_parallel_calls=8
         resources:
           limits:
             nvidia.com/gpu: 8
