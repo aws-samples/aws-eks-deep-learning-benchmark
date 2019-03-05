@@ -76,8 +76,8 @@ RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_confi
     echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
     mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
 
-# My repo fix an issue on benchmark master which was not v1.13 compatible
-RUN mkdir /code && git clone https://github.com/aws-samples/deep-learning-models.git /code
+# My repo extract parameters and make them configurable. Will submit PR against upstream
+RUN mkdir /code && git clone https://github.com/jeffwan/deep-learning-models.git /code
 
 WORKDIR "/code"
 
