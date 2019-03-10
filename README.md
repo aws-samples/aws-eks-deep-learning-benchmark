@@ -68,6 +68,8 @@ Please remember to use same `VPC` and `Subnet` as your EKS cluster Node Group. O
 Remember to integration with S3 and then you will get a Lustre File System backed by S3. No need to move data. 
 ![fsx-s3-integration](images/fsx-s3-integration.png)
 
+There's another kubernetes way to dynamically provision FSx for Lustre. Please check [Dynamic Provisioning with data repository Example](https://github.com/aws/csi-driver-amazon-fsx/tree/master/examples/kubernetes/dynamic_provisioning_s3)
+
 ### Install MPI Operator
 The [MPI Operator](https://github.com/kubeflow/mpi-operator) is a component of [Kubeflow](https://github.com/kubeflow/kubeflow) which makes it easy to run allreduce-style distributed training on Kubernetes.
 In order to leverage this, `ksonnet` is required in your OS, please follow [ksonnet](https://github.com/ksonnet/ksonnet) to install command. 
