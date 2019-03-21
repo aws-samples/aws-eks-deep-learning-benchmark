@@ -14,4 +14,4 @@ spec:
     driver: fsx.csi.aws.com
     volumeHandle: [FileSystemId]
     volumeAttributes:
-      dnsname: [DNSName] 
+      dnsname: [DNSName]

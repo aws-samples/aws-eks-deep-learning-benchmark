@@ -126,7 +126,7 @@ Please replace `${repo}/${image}:${tag}` with your docker tags
 docker build -t ${repo}/${image}:${tag} --build-arg python=3.5 .
 ```
 
-If you want to save time building your image, you can use `seedjeffwan/tf-cnn-benchmark:cuda10-hd0.16.0-tf1.13.1-py3.5` directly.
+If you want to save time building your image, you can use `seedjeffwan/eks-dl-benchmark:cuda10-tf1.13.1-hvd0.16.0-py3.5` directly.
 
 ### Submit Training Job
 

@@ -1,14 +1,14 @@
 apiVersion: kubeflow.org/v1alpha1
 kind: MPIJob
 metadata:
-  name: benchmark-gpu-aws-32
+  name: benchmark-eks-gpu-32
 spec:
   replicas: 4
   template:
     spec:
       imagePullPolicy: Always
       containers:
-      - image: seedjeffwan/tf-cnn-benchmark:cuda10-hd0.16.0-tf1.13.1-py3.5
+      - image: seedjeffwan/eks-dl-benchmark:cuda10-tf1.13.1-hvd0.16.0-py3.5
         imagePullPolicy: Always
         name: tensorflow-benchmarks
         command:
@@ -42,7 +42,7 @@ spec:
           - models/resnet/tensorflow/train_imagenet_resnet_hvd.py
           - --batch_size=256
           - --model=resnet50
-          - --num_batches=1000
+          - --num_batches=300
           - --fp16
           - --display_every=50
           - --data_dir=/data/imagenet/train

@@ -9,7 +9,7 @@ metadata:
   name: fsx-pv
 spec:
   capacity:
-    storage: 5Gi
+    storage: 60Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
