@@ -1,9 +1,9 @@
 apiVersion: kubeflow.org/v1alpha1
 kind: MPIJob
 metadata:
-  name: benchmark-gpu-aws-64
+  name: benchmark-gpu-aws-32
 spec:
-  replicas: 8
+  replicas: 4
   template:
     spec:
       imagePullPolicy: Always

@@ -76,17 +76,16 @@ RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_confi
     echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
     mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
 
-# My repo extract parameters and make them configurable. Will submit PR against upstream
-RUN mkdir /code && git clone https://github.com/jeffwan/deep-learning-models.git /code
+RUN mkdir /code && git clone https://github.com/aws-samples/deep-learning-models.git /code
 
 WORKDIR "/code"
 
 CMD mpirun \
   python models/resnet/tensorflow/train_imagenet_resnet_hvd.py \
-    --batch_size=256
-    --model=resnet50
-    --num_batches=1000
-    --fp16
-    --lr_decay_mode=poly
+    --batch_size=256 \
+    --model=resnet50 \
+    --num_batches=1000 \
+    --fp16 \
+    --lr_decay_mode=poly \
     --synthetic
     
