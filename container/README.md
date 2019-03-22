@@ -18,3 +18,8 @@ For users using CUDA 9.0 (compatible with Tensorflow V1.12), use different docke
 docker build -t ${repo}/${image}:${tag} --build-arg python=3.5 -f Dockerfile-v1.12 .
 
 ```
+
+### Difference between Dockerfile
+- `Dockerfile` uses binary Tensorflow
+- `Dockerfile-custom` build Tensorflow from source with MKL optimization
+- `Dockerfiler-v1.12` use CUDA 9.0 with compatible Tensorflow v1.12

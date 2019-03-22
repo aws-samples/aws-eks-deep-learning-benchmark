@@ -1,6 +1,6 @@
 FROM horovod/horovod:0.16.0-tf1.12.0-torch1.0.0-mxnet1.4.0-py3.5
 
-RUN mkdir /code && git clone https://github.com/jeffwan/deep-learning-models.git /code
+RUN mkdir /code && git clone https://github.com/aws-samples/deep-learning-models.git /code
 WORKDIR "/code"
 
 CMD mpirun \
