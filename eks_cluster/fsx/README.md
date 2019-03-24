@@ -49,10 +49,10 @@ Follow this *guidance* and replace *subnetId*, *securityGroupIds* and *s3ImportP
 1. Open your EC2 Management Console, created the instance by eksctl, and you will find out *subnetId*.  
 ![ec2-mgmt-console](../../images/ec2-mgmt-console.jpg)
 
-2. Get your *securityGroupIds* by clicking security group name.  
+2. Get your *securityGroupIds* by clicking security group \*-cluster-ClusterSharedNodeSecurityGroup-\*.  
 ![securty-group](../../images/security-group.jpg)
 
-3. Edit inbound rules and make sure port 988 is open there.  
+3. If you use a different security group, please make sure port 988 is open in inbound rules.  
 ![inbound-rule](../../images/inbound-rule.jpg)
 
 4. Apply changes to kubernetes
