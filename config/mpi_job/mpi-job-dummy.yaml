@@ -1,0 +1,9 @@
+args: null
+command: mpirun,-mca,btl_tcp_if_exclude,lo,-mca,pml,ob1,-mca,btl,^openib,--bind-to,none,-map-by,slot,-x,LD_LIBRARY_PATH,-x,PATH,-x,NCCL_DEBUG=INFO,python,scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py,--data_format=NCHW,--batch_size=128,--model=resnet50,--optimizer=sgd,--variable_update=horovod,--data_name=imagenet,--use_fp16
+gpusPerReplica: 1
+image: mpioperator/tensorflow-benchmarks:latest
+name: benchmark-mpi-job-8
+replicas: 1
+
+
+In 2019, there're more than 150 instance types in different cloud provider like AWS, GCP, Azure and users feel challenging to pick the right instance type. Even for same amount of workloads, user could choose large cluster with small instances or small cluster with large instances. Users have run performance testing and keep optimizing their instance pool but this is very expensive, hard and ongoing. We will talk about platform which vends right sizing and optimization recommendation to Kubernetes users to help  them optimize resource utilization and reduce cost based on user's past behavior. These recommendations and feedbacks for the like of the workload will be provided by continually monitoring system metrics. Users can adopt these recommendations to resize instance's machine type to more efficiently use the instance's resources.
