@@ -7,14 +7,14 @@
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
     workflows: {
-      name: "benchmark-20190222-4",
+      name: "benchmark-20190222-7",
       namespace: "default",
       bucket: "dl-benchmark-result",
       image: "seedjeffwan/benchmark-runner:latest",
       region: "us-west-2",
-      az: "us-west-2",
+      az: "us-west-2", // TODO item
       ami: "ami-095922d81242d0528",
-      instanceType: "p2.xlarge",
+      instanceType: "p3.2xlarge",
       placementGroup: "true",
       clusterVersion: "1.11",
       githubSecretName: "github-token",

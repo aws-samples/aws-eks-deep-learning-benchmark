@@ -13,8 +13,7 @@ from benchmark.test import deploy_utils
 
 def parse_arguments():
   # create the top-level parser
-  parser = argparse.ArgumentParser(
-    description="Submit benchmark test.")
+  parser = argparse.ArgumentParser(description="Submit benchmark test.")
 
   parser.add_argument(
     "--region",
@@ -41,7 +40,7 @@ def parse_arguments():
     "--cluster_version",
     default="1.11",
     type=str,
-    help="The zone to create the GKE cluster.")
+    help="The zone to create the AWS cluster.")
 
   parser.add_argument(
     "--ami",
@@ -59,7 +58,7 @@ def parse_arguments():
     "--node_count",
     default="",
     type=str,
-    help="Instance numbers in worker group ASG.")
+    help="Number of instacnes in worker group ASG.")
 
   # Parse the args
   args = parser.parse_args()
