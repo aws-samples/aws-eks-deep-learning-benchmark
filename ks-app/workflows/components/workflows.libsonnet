@@ -57,10 +57,10 @@
     // The name to use for the volume to use to contain test data.
     local dataVolume = params.nfsVolume,
 
-    local enableDatasetStorage = if params.storageBackend != "fsx" || "efs" then
-      "false"
+    local enableDatasetStorage = if (params.storageBackend != "fsx") || (params.storageBackend != "efs") then
+      false
     else
-      "true",
+      true,
     local trainingDataSetVolum = params.storageBackend + "-pvc",
 
     // Optional
@@ -210,15 +210,15 @@
                 {
                   name: "install-storage-backend",
                   template: "install-storage-backend",
-                } else {},
+                }
+                else {},
               ],
-              if enableDatasetStorage then
-              [
+              [ if enableDatasetStorage then
                 {
                   name: "copy-dataset",
                   template: "copy-dataset",
-                },
-              ] else [],
+                } else {},
+              ],
               // [
               //   {
               //     name: "setup-job-config",
@@ -314,7 +314,7 @@
             "benchmark.test.install_storage_backend",
             "--base_dir=" + benchmarkDir,
             "--storage_backend=" + params.storageBackend,
-            "--s3_import_path=" + params.s3DatasetPath,
+            "--s3_import_path=" + params.s3DatasetBucket,
             "--experiment_id=" + params.name,
           ], envVars= aws_credential_env
           ),  // install storage backend
@@ -338,13 +338,13 @@
             "python",
             "-m",
             "benchmark.test.copy_dataset",
-            "--s3_import_path=" + params.s3DatasetPath,
+            "--s3_import_path=" + params.s3DatasetBucket,
             "--pvc_name=" + trainingDataSetVolum,
           ], envVars=aws_credential_env
           ),  // copy-dataset
 
           $.new(_env, _params).buildTemplate("copy-results", [
-            "sh", srcDir + "/src/benchmark/test/copy_results.sh", params.namespace, params.bucket,
+            "sh", srcDir + "/src/benchmark/test/copy_results.sh", params.namespace, params.s3ResultBucket,
           ], envVars=aws_credential_env
           ),  // copy-results
 
@@ -360,7 +360,7 @@
           //   "-m",
           //   "benchmark.testing.copy-results",
           //   "--output_dir=" + benchmarkOutputDir,
-          //   "--bucket=" + params.bucket,
+          //   "--bucket=" + params.s3ResultBucket,
           // ]),  // copy-results
 
           $.new(_env, _params).buildTemplate("delete-test-dir", [
@@ -369,7 +369,7 @@
             "rm -rf " + benchmarkDir,
           ]),  // delete test dir
         ] + benchmarksteps,  // templates
-      },
+      }, // spec
     },  // benchmark
   },  // parts
 }

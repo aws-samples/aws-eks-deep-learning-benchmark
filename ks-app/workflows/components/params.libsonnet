@@ -1,55 +1,34 @@
 {
-  global: {
-    // User-defined global parameters; accessible to all component and environments, Ex:
-    // replicas: 4,
-  },
+  global: {},
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
     workflows: {
-      name: "benchmark-20190222-7",
-      namespace: "default",
-      bucket: "dl-benchmark-result",
-      image: "seedjeffwan/benchmark-runner:latest",
-      region: "us-west-2",
-      az: "us-west-2", // TODO item
-      ami: "ami-095922d81242d0528",
-      instanceType: "p3.2xlarge",
-      placementGroup: "true",
-      clusterVersion: "1.11",
-      githubSecretName: "github-token",
-      githubSecretTokenKeyName: "GITHUB_TOKEN",
-      s3SecretName: "aws-secret",
-      s3SecretAccesskeyidKeyName: "AWS_ACCESS_KEY_ID",
-      s3SecretSecretaccesskeyKeyName: "AWS_SECRET_ACCESS_KEY",
-      nfsVolumeClaim: "benchmark-pvc",
-      nfsVolume: "benchmark-pv",
-      experiments: [
-        {
-          experiment: "experiment-20190221-11", 
-          trainingJobPkg: "mpi-job",
-          trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
-        },
-        {
-          experiment: "experiment-20190221-12",
-          trainingJobPkg: "mpi-job",
-          trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
-        },
-        {
-          experiment: "experiment-20190221-13", 
-          trainingJobPkg: "mpi-job",
-          trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
-        },
-        {
-          experiment: "experiment-20190221-14", 
-          trainingJobPkg: "mpi-job",
-          trainingJobPrototype: "mpi-job-custom",
-          trainingJobConfig: "mpi/mpi-job-dummy.yaml"
-        },
-      ],
+      ami: 'ami-095922d81242d0528',
+      az: 'us-west-2',
+      s3ResultBucket: 'dl-benchmark-result',
+      s3DatasetBucket: 'eks-dl-benchmark',
+      clusterVersion: '1.11',
+      experiments: [{
+        experiment: 'experiment-20190327-11',
+        trainingJobConfig: 'mpi/mpi-job-dummy.yaml',
+        trainingJobPkg: 'mpi-job',
+        trainingJobPrototype: 'mpi-job-custom',
+      }],
+      githubSecretName: 'github-token',
+      githubSecretTokenKeyName: 'GITHUB_TOKEN',
+      image: 'seedjeffwan/benchmark-runner:latest',
+      instanceType: 'p3.2xlarge',
+      name: '20190329',
+      namespace: 'default',
+      nfsVolume: 'benchmark-pv',
+      nfsVolumeClaim: 'benchmark-pvc',
+      placementGroup: 'true',
+      region: 'us-west-2',
+      s3SecretName: 'aws-secret',
+      s3SecretAccesskeyidKeyName: 'AWS_ACCESS_KEY_ID',
+      s3SecretSecretaccesskeyKeyName: 'AWS_SECRET_ACCESS_KEY',
+      storageBackend: 'fsx',
     },
   },
 }

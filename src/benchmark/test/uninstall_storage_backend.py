@@ -8,6 +8,8 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 
+
+# need to delet PV and PVC first?
 def parse_args():
   parser = argparse.ArgumentParser()
 
