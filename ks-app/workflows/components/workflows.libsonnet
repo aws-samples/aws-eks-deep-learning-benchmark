@@ -200,6 +200,10 @@
                   name: "install-github-secret",
                   template: "install-github-secret",
                 },
+                {
+                  name: "install-storage-backend",
+                  template: "install-storage-backend",
+                },
               ],
               // [
               //   {
@@ -285,6 +289,16 @@
           ], envVars=github_token_env + aws_credential_env
           ),  // install github secret
           
+          $.new(_env, _params).buildTemplate("install-storage-backend", [
+            "python",
+            "-m",
+            "benchmark.test.install_storage_backend",
+            "--base_dir=" + benchmarkDir,
+            "--storage-backend=" + "fsx",
+            "--tag=" + params.name,
+          ], envVars= aws_credential_env
+          ),  // install github secret
+
           $.new(_env, _params).buildTemplate("setup-job-config",[
             "sh", srcDir + "/src/benchmark/test/setup_job_config.sh", params.namespace,
           ], envVars=aws_credential_env,
