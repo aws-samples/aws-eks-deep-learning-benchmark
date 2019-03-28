@@ -98,7 +98,6 @@ if __name__ == "__main__":
   with open(cluster_manifest_path, "r") as stream: 
     cluster_spec = yaml.load(stream)
   
-  # TODO: fix on aws-k8s-tester side? 
   kubeconfig_file_path = os.path.join(benchmark_dir, "kubeconfig")
   if not os.path.exists(kubeconfig_file_path):
     open(kubeconfig_file_path, 'a').close()

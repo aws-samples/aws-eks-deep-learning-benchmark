@@ -70,7 +70,7 @@ def install_addon():
   kubeconfig_path = str(os.environ['KUBECONFIG'])
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)
 
-  # Deploy Github Secret
+  # Deploy Github Secret. Can be passed from user's parameter
   github_token = str(os.environ['GITHUB_TOKEN'])
   install_github_secret(api_client, namespace, args.github_secret_name, base64.b64encode(github_token))
 

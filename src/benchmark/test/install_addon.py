@@ -28,7 +28,6 @@ def parse_args():
     type=str,
     help=("The github token to be created."))
 
-
   args, _ = parser.parse_known_args()
   return args
 

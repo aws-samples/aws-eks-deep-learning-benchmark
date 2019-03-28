@@ -1,4 +1,3 @@
-
 NAMESPACE=$1
 
 NFS_POD_NAME=$(kubectl --kubeconfig=${BENCHMARK_DIR}/kubeconfig get pods -l role=kubebench-nfs -o jsonpath="{.items[0].metadata.name}")
