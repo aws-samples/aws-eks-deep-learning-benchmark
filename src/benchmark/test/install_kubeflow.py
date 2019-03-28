@@ -44,7 +44,7 @@ def install_kubeflow(api_client, app_dir, namespace):
 
     cmd = "ks param set mpi-operator namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
-    
+
     cmd = "ks param set argo namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
 
@@ -78,7 +78,7 @@ def install_kubebench_nfs(api_client, app_dir, namespace):
   util.run(["ks", "pkg", "install", "kubebench/kubebench-quickstarter"], cwd=app_dir)
   util.run(["ks", "generate", "kubebench-quickstarter-service", "kubebench-quickstarter-service"], cwd=app_dir)
   util.run(["ks", "generate", "kubebench-quickstarter-volume", "kubebench-quickstarter-volume"], cwd=app_dir)
-  
+
   util.run(["ks", "param", "set", "kubebench-quickstarter-service", "namespace", namespace], cwd=app_dir)
   util.run(["ks", "param", "set", "kubebench-quickstarter-volume", "namespace", namespace], cwd=app_dir)
 
@@ -89,7 +89,7 @@ def install_kubebench_nfs(api_client, app_dir, namespace):
   kubebench_nfs_service_name = "kubebench-nfs-svc"
   logging.info("Verifying NFS deployment started")
   util.wait_for_deployment(api_client, namespace, kubebench_nfs_deployment_name)
-  
+
   service = get_k8s_service(api_client, namespace, kubebench_nfs_service_name)
   util.run(["ks", "param", "set", "kubebench-quickstarter-volume", "nfsServiceIP", service.spec.cluster_ip], cwd=app_dir)
   apply_command = ["ks", "apply", "default", "-c", "kubebench-quickstarter-volume"]
