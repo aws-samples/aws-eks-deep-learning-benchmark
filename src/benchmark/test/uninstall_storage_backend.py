@@ -113,7 +113,12 @@ def uninstall_addon():
   cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
   vpc_id, subnet_id, security_group_id = get_cluster_network_info(cluster_manifest_path)
 
-  fs_id = get_config_entry(cluster_manifest_path, "external-file-system-id")
+  try:
+    fs_id = get_config_entry(cluster_manifest_path, "external-file-system-id")
+  except KeyError as e:
+    logging.error("Received error: %s", e)
+    logging.info("external-file-system-id does not exists which means storage installation may failed. Skip this step")
+    return
 
   # Install storage
   if storage_backend == 'fsx':

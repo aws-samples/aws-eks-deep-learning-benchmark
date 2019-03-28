@@ -57,10 +57,9 @@
     // The name to use for the volume to use to contain test data.
     local dataVolume = params.nfsVolume,
 
-    local enableDatasetStorage = if (params.storageBackend != "fsx") || (params.storageBackend != "efs") then
-      false
-    else
-      true,
+    local enableDatasetStorage = if (params.storageBackend == "fsx") || (params.storageBackend == "efs") then true else false,
+    // Only EFS need to copy data, FSx use S3 data repository support in creation
+    local needDataCopy = if enableDatasetStorage && (params.storageBackend == "efs") then true else false,
     local trainingDataSetVolum = params.storageBackend + "-pvc",
 
     // Optional
@@ -69,6 +68,7 @@
     else
       "--no-placement_group",
 
+    // this combination will guarantee aws SDK working properly
     local aws_credential_env = [
       {
           name: "AWS_ACCESS_KEY_ID",
@@ -87,6 +87,10 @@
               key: params.s3SecretSecretaccesskeyKeyName,
             },
           },
+        },
+        {
+          name: "AWS_REGION",
+          value: params.region
         },
     ],
 
@@ -213,7 +217,7 @@
                 }
                 else {},
               ],
-              [ if enableDatasetStorage then
+              [ if needDataCopy then
                 {
                   name: "copy-dataset",
                   template: "copy-dataset",
@@ -276,7 +280,7 @@
             "--ami=" + params.ami,
             "--cluster_version=" + params.clusterVersion,
             "--instance_type=" + params.instanceType,
-            "--node_count=" + "1",
+            "--node_count=" + params.nodeCount,
           ], envVars=aws_credential_env
           ),  // create cluster
 

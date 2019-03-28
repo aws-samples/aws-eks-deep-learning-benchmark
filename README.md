@@ -81,6 +81,7 @@ Worker Node:
 - az: 'us-west-2a'
 - instanceType: 'p3.2xlarge'
 - placementGroup: 'true'
+- nodeCount: 1
 
 Kubernetes:
 - clusterVersion: '1.11'

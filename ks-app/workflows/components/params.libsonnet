@@ -5,7 +5,7 @@
     // Each object below should correspond to a component in the components/ directory
     workflows: {
       ami: 'ami-095922d81242d0528',
-      az: 'us-west-2',
+      az: 'us-west-2a',
       s3ResultBucket: 'dl-benchmark-result',
       s3DatasetBucket: 'eks-dl-benchmark',
       clusterVersion: '1.11',
@@ -19,7 +19,8 @@
       githubSecretTokenKeyName: 'GITHUB_TOKEN',
       image: 'seedjeffwan/benchmark-runner:latest',
       instanceType: 'p3.2xlarge',
-      name: '20190329',
+      nodeCount: 1,
+      name: '20190329-01',
       namespace: 'default',
       nfsVolume: 'benchmark-pv',
       nfsVolumeClaim: 'benchmark-pvc',
