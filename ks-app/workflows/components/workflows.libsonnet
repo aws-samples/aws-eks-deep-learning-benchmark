@@ -1,6 +1,6 @@
 {
   buildArgoBenchmarkStep:: function(e) {
-    result:: 
+    result::
     {
       name: e.experiment,
       template: e.experiment,
@@ -57,10 +57,16 @@
     // The name to use for the volume to use to contain test data.
     local dataVolume = params.nfsVolume,
 
+    local enableDatasetStorage = if params.storageBackend != "fsx" || "efs" then
+      "false"
+    else
+      "true",
+    local trainingDataSetVolum = params.storageBackend + "-pvc",
+
     // Optional
-    local placementGroup = if params.placementGroup == "true" then 
+    local placementGroup = if params.placementGroup == "true" then
       "--placement_group"
-    else 
+    else
       "--no-placement_group",
 
     local aws_credential_env = [
@@ -95,9 +101,9 @@
         },
       }
     ],
-    
+
     local buildBenchmarkTemplate = function(e) {
-      result:: 
+      result::
         $.new(_env, _params).buildTemplate(e.experiment, [
             "python",
             "-m",
@@ -200,11 +206,19 @@
                   name: "install-github-secret",
                   template: "install-github-secret",
                 },
+                if enableDatasetStorage then
                 {
                   name: "install-storage-backend",
                   template: "install-storage-backend",
-                },
+                } else {},
               ],
+              if enableDatasetStorage then
+              [
+                {
+                  name: "copy-dataset",
+                  template: "copy-dataset",
+                },
+              ] else [],
               // [
               //   {
               //     name: "setup-job-config",
@@ -222,6 +236,11 @@
                   name: "copy-results",
                   template: "copy-results",
                 },
+                if enableDatasetStorage then
+                {
+                  name: "uninstall-storage-backend",
+                  template: "uninstall-storage-backend",
+                } else {},
               ],
               [
                 {
@@ -249,7 +268,7 @@
 
           $.new(_env, _params).buildTemplate("create-cluster", [
             "python",
-            "-m", 
+            "-m",
             "benchmark.test.create_cluster",
             "--region=" + params.region,
             "--az=" + params.az,
@@ -288,21 +307,41 @@
             "--github-secret-name=" + params.githubSecretName,
           ], envVars=github_token_env + aws_credential_env
           ),  // install github secret
-          
+
           $.new(_env, _params).buildTemplate("install-storage-backend", [
             "python",
             "-m",
             "benchmark.test.install_storage_backend",
             "--base_dir=" + benchmarkDir,
-            "--storage-backend=" + "fsx",
-            "--tag=" + params.name,
+            "--storage_backend=" + params.storageBackend,
+            "--s3_import_path=" + params.s3DatasetPath,
+            "--experiment_id=" + params.name,
           ], envVars= aws_credential_env
-          ),  // install github secret
+          ),  // install storage backend
+
+          $.new(_env, _params).buildTemplate("uninstall-storage-backend", [
+            "python",
+            "-m",
+            "benchmark.test.uninstall_storage_backend",
+            "--base_dir=" + benchmarkDir,
+            "--storage_backend=" + params.storageBackend,
+            "--experiment_id=" + params.name,
+          ], envVars= aws_credential_env
+          ),  // uninstall storage backend
 
           $.new(_env, _params).buildTemplate("setup-job-config",[
             "sh", srcDir + "/src/benchmark/test/setup_job_config.sh", params.namespace,
           ], envVars=aws_credential_env,
           ),  // setup_job_config
+
+          $.new(_env, _params).buildTemplate("copy-dataset", [
+            "python",
+            "-m",
+            "benchmark.test.copy_dataset",
+            "--s3_import_path=" + params.s3DatasetPath,
+            "--pvc_name=" + trainingDataSetVolum,
+          ], envVars=aws_credential_env
+          ),  // copy-dataset
 
           $.new(_env, _params).buildTemplate("copy-results", [
             "sh", srcDir + "/src/benchmark/test/copy_results.sh", params.namespace, params.bucket,
