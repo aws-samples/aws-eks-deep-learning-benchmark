@@ -102,6 +102,8 @@ Experiment:
 - name: '20190329'
 - s3ResultBucket: 'dl-benchmark-result'
 
+### Benchmark Workflow
+![benchmark-workflow](./benchmark-workflow.png)
 
 ## Contributing Guidance
 
