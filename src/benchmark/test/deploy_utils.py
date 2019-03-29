@@ -68,7 +68,7 @@ def setup_ks_app(base_app_dir, namespace, api_client):
     logging.warning("GITHUB_TOKEN not set; you will probably hit Github API "
                     "limits.")
 
-  kubeflow_registry = "github.com/kubeflow/kubeflow/tree/master/kubeflow"
+  kubeflow_registry = "github.com/jeffwan/kubeflow/tree/master/kubeflow"
   kubebench_registry = "github.com/kubeflow/kubebench/tree/master/kubebench"
 
   timestamp = datetime.datetime.now()
@@ -205,7 +205,7 @@ def wait_for_benchmark_job(job_name, namespace, timeout_minutes=20, replicas=1):
     if workflow and workflow['status'] and workflow['status']['phase'] and workflow['status']['phase'] == "Succeeded":
       logging.info("Job Completed")
       return workflow
-    logging.info("Waiting for job %s:%s", namespace, job_name)    
+    logging.info("Waiting for job %s:%s", namespace, job_name)
     time.sleep(10)
   logging.error("Timeout waiting for workflow %s in namespace %s to be "
                 "complete", job_name, namespace)
@@ -235,10 +235,10 @@ def cleanup_kb_job(app_dir, job_name):
   util.run(cmd.split(), cwd=app_dir)
 
 
-# TODO: Remove this block once this done 
+# TODO: Remove this block once this done
 # https://github.com/aws/aws-k8s-tester/issues/42
 # Add AWS Credential file
-def ensure_aws_credentials():  
+def ensure_aws_credentials():
   aws_credential_dir = "/root/.aws"
   aws_credential_path = os.path.join(aws_credential_dir, "credentials")
   util.makedirs(aws_credential_dir)
@@ -247,4 +247,3 @@ def ensure_aws_credentials():
     file.write("[default]")
     file.write("aws_access_key_id = " + base64.b64decode(os.environ['AWS_ACCESS_KEY_ID']))
     file.write("aws_secret_access_key = " + base64.b64decode(os.environ['AWS_SECRET_ACCESS_KEY']))
-  

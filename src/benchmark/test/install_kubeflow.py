@@ -63,12 +63,12 @@ def wait_for_kubeflow_install(api_client, namespace):
   logging.info("Verifying Argo controller started.")
   util.wait_for_deployment(api_client, namespace, argo_deployment_name)
 
-  # Verify that the TfJob operator is actually deployed.
+  # Verify that the TfJob Operator is actually deployed.
   tf_job_deployment_name = "tf-job-operator"
   logging.info("Verifying TfJob controller started.")
   util.wait_for_deployment(api_client, namespace, tf_job_deployment_name)
 
-  # Verify that the Argo operator is deployed.
+  # Verify that the MPI Operator is deployed.
   mpi_job_deployment_name = "mpi-operator"
   logging.info("Verifying MPIJob controller started.")
   util.wait_for_deployment(api_client, namespace, mpi_job_deployment_name)
