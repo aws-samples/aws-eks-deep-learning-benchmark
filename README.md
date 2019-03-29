@@ -1,9 +1,9 @@
 ## Introduction
 
-This repository contains scripts to train deep learning models optimized to run well on [Amazon Elastic Container Service for Kubernetes](https://aws.amazon.com/eks/). 
+This repository contains scripts to train deep learning models optimized to run well on [Amazon Elastic Container Service for Kubernetes](https://aws.amazon.com/eks/).
 
 
-To simplify model building, we use ResNet50 from [deep-learning-models](https://github.com/aws-samples/deep-learning-models). Apart from it, process to setup a EKS cluster and file storage for deep learning is also included. 
+To simplify model building, we use ResNet50 from [deep-learning-models](https://github.com/aws-samples/deep-learning-models). Apart from it, process to setup a EKS cluster and file storage for deep learning is also included.
 
 ## Benchmark Steps
 
@@ -11,7 +11,7 @@ To simplify model building, we use ResNet50 from [deep-learning-models](https://
 
 The ImageNet dataset is provided by http://www.image-net.org/ . You will need to register and download the following files from the original dataset: ILSVRC2012_img_train.tar.gz and ILSVRC2012_img_val.tar.gz. This contains the original 1.28M images among 1000 classes. Use the scripts provided in [utils](https://github.com/aws-samples/deep-learning-models/tree/master/utils/tensorflow) directory to process the ImageNet images to create TF Records for Tensorflow.
 
-Create an S3 bucket and upload training and validation dataset to buckets like this. 
+Create an S3 bucket and upload training and validation dataset to buckets like this.
 
 ```
 ➜ aws s3 ls s3://dl-benchmark-dataset/imagenet/train/
@@ -38,12 +38,12 @@ eksctl create cluster --name=${CLUSTER_NAME} --nodes=1 --node-type=p3.16xlarge -
 
 > Note: In order to get higher network performance between host, we put all the machines in one availability zone.
 
-> Note: In you want to create machines within one [Placement Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html) to leverage low-latency without any slowing, you can follow guidance here and manually add node groups using [CloudFormation Template](eks_cluster/amazon-eks-nodegroup-placementgroup.yaml) 
+> Note: In you want to create machines within one [Placement Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html) to leverage low-latency without any slowing, you can follow guidance here and manually add node groups using [CloudFormation Template](eks_cluster/amazon-eks-nodegroup-placementgroup.yaml)
 
  `eksctl` doesn't support placement group option yet, it's tracked in this [issue](https://github.com/weaveworks/eksctl/issues/479)
 
 ### Install NIVIDA Device Plugin
-The [NVIDIA device plugin](https://github.com/NVIDIA/k8s-device-plugin) for Kubernetes is a Daemonset that allows you to automatically 
+The [NVIDIA device plugin](https://github.com/NVIDIA/k8s-device-plugin) for Kubernetes is a Daemonset that allows you to automatically
 - Expose the number of GPUs on each nodes of your cluster
 - Keep track of the health of your GPUs
 - Run GPU enabled containers in your Kubernetes cluster.
@@ -55,21 +55,21 @@ Enable GPU support in your cluster by deploying the following Daemonset:
 ```
 
 ### Create EFS and Lustre File Storage
-You don't have to create both file system. Choose the one you will use. 
+You don't have to create both file system. Choose the one you will use.
 Please remember to use same `VPC` and `Subnet` as your EKS cluster Node Group. Otherwise, you won't succesfully mount storage.
 
-*EFS*: Please follow [EFS User Guide](https://docs.aws.amazon.com/efs/latest/ug/gs-step-two-create-efs-resources.html) to create EFS. You also need to mount EFS to one of EC2 machines and download S3 dataset into it. 
+*EFS*: Please follow [EFS User Guide](https://docs.aws.amazon.com/efs/latest/ug/gs-step-two-create-efs-resources.html) to create EFS. You also need to mount EFS to one of EC2 machines and download S3 dataset into it.
 
-*FSx for Lustre*: Please follow [FSx for Lustre User Guide](https://docs.aws.amazon.com/fsx/latest/LustreGuide/getting-started.html) to create FSx.  
+*FSx for Lustre*: Please follow [FSx for Lustre User Guide](https://docs.aws.amazon.com/fsx/latest/LustreGuide/getting-started.html) to create FSx.
 
-Remember to integration with S3 and then you will get a Lustre File System backed by S3. No need to move data. 
+Remember to integration with S3 and then you will get a Lustre File System backed by S3. No need to move data.
 ![fsx-s3-integration](images/fsx-s3-integration.png)
 
 There's another kubernetes way to dynamically provision FSx for Lustre. Please check [Dynamic Provisioning with data repository Example](https://github.com/aws/csi-driver-amazon-fsx/tree/master/examples/kubernetes/dynamic_provisioning_s3)
 
 ### Install MPI Operator
 The [MPI Operator](https://github.com/kubeflow/mpi-operator) is a component of [Kubeflow](https://github.com/kubeflow/kubeflow) which makes it easy to run allreduce-style distributed training on Kubernetes.
-In order to leverage this, `ksonnet` is required in your OS, please follow [ksonnet](https://github.com/ksonnet/ksonnet) to install command. 
+In order to leverage this, `ksonnet` is required in your OS, please follow [ksonnet](https://github.com/ksonnet/ksonnet) to install command.
 
 
 ```
@@ -89,12 +89,12 @@ In order to leverage this, `ksonnet` is required in your OS, please follow [kson
 ➜ ks apply default -c mpi-operator
 ```
 
-Now you can submit `MPIJob` to kubernetes. 
+Now you can submit `MPIJob` to kubernetes.
 
 ### Create CSI Plugin
 Please follow [EFS instruction](eks_cluster/efs/README.md) and [FSx for Lustre instruction](eks_cluster/fsx/README.md).
 
-Please confirm you get them ready. 
+Please confirm you get them ready.
 
 ```
 ➜ kubectl get sc
@@ -129,18 +129,34 @@ If you want to save time building your image, you can use `seedjeffwan/eks-dl-be
 
 Verify configuration and submit training job.
 ```
-kubectl create -f mpi-job-fsx.yaml
+kubectl create -f resnet50-fsx.yaml
+```
+
+if you'd like to create a job template from scratch, you can do this, go the `eks-dl-benchmark` folder.
+
+```bash
+JOB_NAME=resnet50-fsx
+
+ks generate mpi-job-custom ${JOB_NAME}
+ks param set ${JOB_NAME} image seedjeffwan/eks-dl-benchmark:cuda10-tf1.13.1-hvd0.16.0-py3.5
+ks param set ${JOB_NAME} command "mpirun,-mca,btl_tcp_if_exclude,lo,-mca,pml,ob1,-mca,btl,^openib,--bind-to,socket,-map-by,slot,-x,LD_LIBRARY_PATH,-x,PATH,-x,NCCL_DEBUG=INFO,-x,NCCL_MIN_NRINGS=4,-x,HOROVOD_FUSION_THRESHOLD=16777216,-x,HOROVOD_HIERARCHICAL_ALLREDUCE=1,python,models/resnet/tensorflow/train_imagenet_resnet_hvd.py"
+ks param set ${JOB_NAME} args -- --batch_size=256,--model=resnet50,--num_batches=300,--fp16,--display_every=50,--lr_decay_mode=poly,--synthetic,--intra_op_parallelism_threads=2,--inter_op_parallelism_threads=8,--num_parallel_calls=8
+ks param set ${JOB_NAME} replicas 4
+ks param set ${JOB_NAME} gpusPerReplica 8
+
+ks show default -c ${JOB_NAME} > job.yaml
+
 ```
 
 
 ## FAQ
-- *Can I use this to train other models?*  
+- *Can I use this to train other models?*
   Currently, it only has job specs for training Resnet50 with Imagenet using Tensorflow. You can use any other models using this setting but plugin different model images.
 
-- *Can I skip imagenet procressing?*  
-  Yes. But you can only use synthetic data in this case. You don't need to create EFS or LustreFS. 
+- *Can I skip imagenet procressing?*
+  Yes. But you can only use synthetic data in this case. You don't need to create EFS or LustreFS.
 
-- *Why do you provide EFS and FSx for Lustre? Which one should I use?*  
+- *Why do you provide EFS and FSx for Lustre? Which one should I use?*
   Both storage can be used in distributed training. If you consider performance, we recommend you to use Lustre.
 
 ## Questions
