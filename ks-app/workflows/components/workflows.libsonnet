@@ -89,7 +89,7 @@
           },
         },
         {
-          name: "AWS_REGION",
+          name: "AWS_DEFAULT_REGION",
           value: params.region
         },
     ],
