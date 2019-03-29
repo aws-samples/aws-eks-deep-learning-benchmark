@@ -11,8 +11,6 @@ To simplify model building, we use ResNet50 from [deep-learning-models](https://
 
 The ImageNet dataset is provided by http://www.image-net.org/ . You will need to register and download the following files from the original dataset: ILSVRC2012_img_train.tar.gz and ILSVRC2012_img_val.tar.gz. This contains the original 1.28M images among 1000 classes. Use the scripts provided in [utils](https://github.com/aws-samples/deep-learning-models/tree/master/utils/tensorflow) directory to process the ImageNet images to create TF Records for Tensorflow.
 
-//TODO: is there a way to share S3 dataset to publicly? That will simplify user's setup
-
 Create an S3 bucket and upload training and validation dataset to buckets like this. 
 
 ```
@@ -28,7 +26,6 @@ Create an S3 bucket and upload training and validation dataset to buckets like t
 2019-02-28 12:14:10   19624967 validation-00002-of-00128
 ....
 2019-02-28 12:14:10   20063161 validation-00128-of-00128
-
 ```
 
 ### Create EKS Cluster
@@ -76,7 +73,7 @@ In order to leverage this, `ksonnet` is required in your OS, please follow [kson
 
 
 ```
-➜ ks init /tmp/application && cd /tmp/application
+➜ ks init eks-dl-benchmark && cd eks-dl-benchmark
 
 # Add Registry
 ➜ ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
