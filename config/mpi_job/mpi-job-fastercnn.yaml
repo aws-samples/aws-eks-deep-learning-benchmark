@@ -1,0 +1,6 @@
+args: --config,MODE_MASK=True,MODE_FPN=True,BACKBONE.NORM=FreezeBN,TRAINER=horovod,TRAIN.EVAL_PERIOD=1,TRAIN.STEPS_PER_EPOCH=15000,TRAIN.LR_SCHEDULE=[120000, 160000, 180000],DATA.BASEDIR=/kubebench/data/coco-2017,DATA.TRAIN='train2017',DATA.VAL=val2017,BACKBONE.WEIGHTS=/kubebench/data/coco-2017/ImageNet-R50-AlignPadding.npz
+command: mpirun,-mca,btl_tcp_if_exclude,lo,-mca,pml,ob1,-mca,btl,^openib,--bind-to,none,-map-by,slot,-x,LD_LIBRARY_PATH,-x,PATH,-x,NCCL_DEBUG=INFO,python,/tensorpack/examples/FasterRCNN/train.py
+gpusPerReplica: 1
+image: seedjeffwan/mask-rcnn:cuda9.0-tf1.12-hvd0.15.2-py3.6
+name: mask-rcnn-benchmark
+replicas: 1
