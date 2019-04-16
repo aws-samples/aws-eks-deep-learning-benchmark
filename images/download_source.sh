@@ -17,6 +17,6 @@ fi
 if [ ! -d "$KUBEFLOW_TEST_SRC" ] ; then
     echo "Downloading Github Repository $KUBEFLOW_TEST_SRC"
     git clone https://github.com/kubeflow/testing.git $KUBEFLOW_TEST_SRC
-else 
+else
     echo "$KUBEFLOW_TEST_SRC already exist"
 fi

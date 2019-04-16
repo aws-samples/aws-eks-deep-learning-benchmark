@@ -28,6 +28,18 @@ def parse_args():
     type=str,
     help=("The github token to be created."))
 
+  parser.add_argument(
+    "--kubeflow_registry",
+    default="github.com/jeffwan/kubeflow/tree/master/kubeflow",
+    type=str,
+    help=("The github token to be created."))
+
+  parser.add_argument(
+    "--kubebench_registry",
+    default="github.com/kubeflow/kubebench/tree/master/kubebench",
+    type=str,
+    help=("The github token to be created."))
+
   args, _ = parser.parse_known_args()
   return args
 
@@ -82,7 +94,7 @@ def install_kubeflow(api_client, app_dir, namespace):
 
     cmd = "ks param set mpi-operator namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
-    
+
     cmd = "ks param set argo namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
 
@@ -115,7 +127,7 @@ def install_kubebench_nfs(api_client, app_dir, namespace):
   util.run(["ks", "pkg", "install", "kubebench/kubebench-quickstarter"], cwd=app_dir)
   util.run(["ks", "generate", "kubebench-quickstarter-service", "kubebench-quickstarter-service"], cwd=app_dir)
   util.run(["ks", "generate", "kubebench-quickstarter-volume", "kubebench-quickstarter-volume"], cwd=app_dir)
-  
+
   util.run(["ks", "param", "set", "kubebench-quickstarter-service", "namespace", namespace], cwd=app_dir)
   util.run(["ks", "param", "set", "kubebench-quickstarter-volume", "namespace", namespace], cwd=app_dir)
 
@@ -126,7 +138,7 @@ def install_kubebench_nfs(api_client, app_dir, namespace):
   kubebench_nfs_service_name = "kubebench-nfs-svc"
   logging.info("Verifying NFS deployment started")
   util.wait_for_deployment(api_client, namespace, kubebench_nfs_deployment_name)
-  
+
   service = get_k8s_service(api_client, namespace, kubebench_nfs_service_name)
   util.run(["ks", "param", "set", "kubebench-quickstarter-volume", "nfsServiceIP", service.spec.cluster_ip], cwd=app_dir)
   apply_command = ["ks", "apply", "default", "-c", "kubebench-quickstarter-volume"]
@@ -178,7 +190,7 @@ def install_addon():
   wait_for_gpu_driver_install(api_client)
 
   # Setup ksonnet application
-  app_dir = deploy_utils.setup_ks_app(base_dir, namespace, api_client)
+  app_dir = deploy_utils.setup_ks_app(base_dir, namespace, api_client, args.kubeflow_registry, args.kubebench_registry)
 
   # Deploy Kubeflow
   install_kubeflow(api_client, app_dir, namespace)
@@ -200,14 +212,14 @@ def install_github_secret(api_client, namespace, secret_name, github_token):
     secret: Secret for Github token
   """
   logging.info("Install Github secret.")
-  
+
   corev1_api = k8s_client.CoreV1Api(api_client)
   try:
     secret = client.V1Secret()
     secret.metadata = client.V1ObjectMeta(name=secret_name)
     secret.type = "Opaque"
     secret.data = {"GITHUB_TOKEN": github_token}
-    
+
     corev1_api.create_namespaced_secret(namespace, secret)
   except rest.ApiException as e:
     # Status appears to be a string.

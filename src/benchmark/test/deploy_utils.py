@@ -54,7 +54,7 @@ def _setup_test(api_client, run_label):
 
   return namespace
 
-def setup_ks_app(base_app_dir, namespace, api_client):
+def setup_ks_app(base_app_dir, namespace, api_client, kubeflow_registry, kubebench_registry):
   """Create a ksonnet app for Kubeflow"""
   util.makedirs(base_app_dir)
 
@@ -67,9 +67,6 @@ def setup_ks_app(base_app_dir, namespace, api_client):
   if not os.getenv("GITHUB_TOKEN"):
     logging.warning("GITHUB_TOKEN not set; you will probably hit Github API "
                     "limits.")
-
-  kubeflow_registry = "github.com/jeffwan/kubeflow/tree/master/kubeflow"
-  kubebench_registry = "github.com/kubeflow/kubebench/tree/master/kubebench"
 
   timestamp = datetime.datetime.now()
   app_name = "ks-app"

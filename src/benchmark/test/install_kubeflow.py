@@ -28,6 +28,17 @@ def parse_args():
     type=str,
     help=("The github token to be created."))
 
+  parser.add_argument(
+    "--kubeflow_registry",
+    default="github.com/jeffwan/kubeflow/tree/master/kubeflow",
+    type=str,
+    help=("The github token to be created."))
+
+  parser.add_argument(
+    "--kubebench_registry",
+    default="github.com/kubeflow/kubebench/tree/master/kubebench",
+    type=str,
+    help=("The github token to be created."))
 
   args, _ = parser.parse_known_args()
   return args
@@ -48,7 +59,7 @@ def install_kubeflow(api_client, app_dir, namespace):
     cmd = "ks param set argo namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
 
-  cmd = "ks param set mpi-operator image seedjeffwan/mpi-operator:latest"
+  cmd = "ks param set mpi-operator image mpi-operator/mpi-operator:latest"
   util.run(cmd.split(), cwd=app_dir)
 
   apply_command = ["ks", "apply", "default", "-c", "argo",
@@ -137,7 +148,7 @@ def install_addon():
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)
 
   # Setup ksonnet application
-  app_dir = deploy_utils.setup_ks_app(base_dir, namespace, api_client)
+  app_dir = deploy_utils.setup_ks_app(base_dir, namespace, api_client, args.kubeflow_registry, args.kubebench_registry)
 
   # Deploy Kubeflow
   install_kubeflow(api_client, app_dir, namespace)

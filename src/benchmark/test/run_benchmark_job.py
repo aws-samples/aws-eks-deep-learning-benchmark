@@ -14,7 +14,7 @@ def parse_args():
   parser.add_argument(
     "--experiment_name", default=None, type=str, help=("The namespace to use."))
   parser.add_argument(
-    "--training_job_registry", default='github.com/kubeflow/kubeflow/tree/master/kubeflow', 
+    "--training_job_registry", default='github.com/kubeflow/kubeflow/tree/master/kubeflow',
     type=str, help=("The namespace to use."))
   parser.add_argument(
     "--training_job_pkg", default='mpi-job', type=str, help=("The namespace to use."))
@@ -26,17 +26,32 @@ def parse_args():
   parser.add_argument(
     "--github_secret_name", default='github-token', type=str, help=("The namespace to use."))
 
+  parser.add_argument(
+    "--aws_secret", default='aws-secret', type=str, help=("The namespace to use."))
+
+  parser.add_argument(
+    "--aws_access_key_id", default='AWS_ACCESS_KEY_ID', type=str, help=("The namespace to use."))
+
+  parser.add_argument(
+    "--aws_secret_access_key", default='AWS_SECRET_ACCESS_KEY', type=str, help=("The namespace to use."))
+
+  parser.add_argument(
+    "--aws_region", default='us-west-2', type=str, help=("The aws region to use."))
+
+  parser.add_argument(
+    "--data_pvc", default='null', type=str, help=("The dataset persistent volume claim")
+
   args, _ = parser.parse_known_args()
   return args
 
 def run_benchmark_job():
-  """Run a smoke test."""
+  """Submit benchmark jobs to remote kubernetes cluster."""
   args = parse_args()
   app_dir = os.path.join(str(os.environ['BENCHMARK_DIR']), "ks-app")
-  
+
   kubeconfig_path = str(os.environ['KUBECONFIG'])
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)
-  
+
   namespace = args.namespace
   job_name = args.experiment_name
 
@@ -55,13 +70,29 @@ def run_benchmark_job():
   cmd = job_config_prefix +  "mainJobConfig " + args.training_job_config
   util.run(cmd.split(), cwd=app_dir)
 
+  cmd = job_config_prefix + "awsCredentialsSecret " + args.aws_secret
+  util.run(cmd.split(), cwd=app_dir)
+  cmd = job_config_prefix + "awsCredentialsSecretAccessKeyId " + args.aws_access_key_id
+  util.run(cmd.split(), cwd=app_dir)
+  cmd = job_config_prefix + "awsCredentialsSecretAccessKey " + args.aws_secret_access_key
+  util.run(cmd.split(), cwd=app_dir)
+  cmd = job_config_prefix + "awsRegion " + args.aws_region
+  util.run(cmd.split(), cwd=app_dir)
+
   cmd = job_config_prefix + "githubTokenSecret " + args.github_secret_name
   util.run(cmd.split(), cwd=app_dir)
   cmd = job_config_prefix +  "githubTokenSecretKey GITHUB_TOKEN"
   util.run(cmd.split(), cwd=app_dir)
-  cmd = job_config_prefix +  "controllerImage seedjeffwan/configurator:latest" 
+  cmd = job_config_prefix +  "controllerImage seedjeffwan/configurator:20190415"
   util.run(cmd.split(), cwd=app_dir)
-  cmd = job_config_prefix +  "postJobImage seedjeffwan/mpi-post-processor:latest"
+  cmd = job_config_prefix +  "postJobImage null"
+  util.run(cmd.split(), cwd=app_dir)
+  cmd = job_config_prefix +  "postJobArgs null"
+  util.run(cmd.split(), cwd=app_dir)
+  cmd = job_config_prefix +  "reporterType null"
+  util.run(cmd.split(), cwd=app_dir)
+
+  cmd = job_config_prefix +  "experimentDataPvc " + args.data_pvc
   util.run(cmd.split(), cwd=app_dir)
 
   # cmd = "ks param set " + job_name + " config_args -- --config-file=" + pvc_mount + \

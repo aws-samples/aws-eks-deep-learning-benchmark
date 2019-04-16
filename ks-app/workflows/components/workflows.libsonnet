@@ -57,6 +57,9 @@
     // The name to use for the volume to use to contain test data.
     local dataVolume = params.nfsVolume,
 
+    // The training dataset volume
+    local trainingDatasetVolume = params.trainingDatasetVolume,
+
     local enableDatasetStorage = if (params.storageBackend == "fsx") || (params.storageBackend == "efs") then true else false,
     // Only EFS need to copy data, FSx use S3 data repository support in creation
     local needDataCopy = if enableDatasetStorage && (params.storageBackend == "efs") then true else false,
@@ -117,7 +120,9 @@
             "--experiment_name=" + e.experiment,
             "--training_job_pkg=" + e.trainingJobPkg,
             "--training_job_prototype=" + e.trainingJobPrototype,
-            "--training_job_config=" + e.trainingJobConfig
+            "--training_job_config=" + e.trainingJobConfig,
+            "--training_job_registry=" + e.trainingJobRegistry,
+            "--data_pvc=" + trainingDatasetVolume
           ], envVars=github_token_env + aws_credential_env,
         ),  // run kubebench job
     }.result,
@@ -180,7 +185,7 @@
           },
         ],  // volumes
         // onExit specifies the template that should always run when the workflow completes.
-        onExit: "exit-handler",
+        // onExit: "exit-handler",
         templates: [
           {
             name: "benchmark",
@@ -223,12 +228,12 @@
                   template: "copy-dataset",
                 } else {},
               ],
-              // [
-              //   {
-              //     name: "setup-job-config",
-              //     template: "setup-job-config",
-              //   },
-              // ],
+              [
+                {
+                  name: "install-storage-driver",
+                  template: "install-storage-driver",
+                },
+              ],
               std.map($.buildArgoBenchmarkStep, params.experiments),
             ],
           },
@@ -281,6 +286,7 @@
             "--cluster_version=" + params.clusterVersion,
             "--instance_type=" + params.instanceType,
             "--node_count=" + params.nodeCount,
+            #"--cluster_config=" + params.clusterConfig,
           ], envVars=aws_credential_env
           ),  // create cluster
 
@@ -299,6 +305,7 @@
             "benchmark.test.install_kubeflow",
             "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
+            "--kubeflow_registry=" + params.kubeflowRegistry,
           ], envVars=github_token_env + aws_credential_env
           ),  // install kubeflow
 
@@ -318,7 +325,7 @@
             "benchmark.test.install_storage_backend",
             "--base_dir=" + benchmarkDir,
             "--storage_backend=" + params.storageBackend,
-            "--s3_import_path=" + params.s3DatasetBucket,
+            "--s3_import_path=" + params.s3DatasetPath,
             "--experiment_id=" + params.name,
           ], envVars= aws_credential_env
           ),  // install storage backend
@@ -333,22 +340,26 @@
           ], envVars= aws_credential_env
           ),  // uninstall storage backend
 
-          $.new(_env, _params).buildTemplate("setup-job-config",[
-            "sh", srcDir + "/src/benchmark/test/setup_job_config.sh", params.namespace,
+          $.new(_env, _params).buildTemplate("install-storage-driver",[
+            "python",
+            "-m",
+            "benchmark.test.install_storage_driver",
+            "--base_dir=" + benchmarkDir,
+            "--storage_backend=" + params.storageBackend,
           ], envVars=aws_credential_env,
-          ),  // setup_job_config
+          ),  // install storage driver
 
           $.new(_env, _params).buildTemplate("copy-dataset", [
             "python",
             "-m",
             "benchmark.test.copy_dataset",
-            "--s3_import_path=" + params.s3DatasetBucket,
+            "--s3_import_path=" + params.s3DatasetPath,
             "--pvc_name=" + trainingDataSetVolum,
           ], envVars=aws_credential_env
           ),  // copy-dataset
 
           $.new(_env, _params).buildTemplate("copy-results", [
-            "sh", srcDir + "/src/benchmark/test/copy_results.sh", params.namespace, params.s3ResultBucket,
+            "sh", srcDir + "/src/benchmark/test/copy_results.sh", params.namespace, params.s3ResultPath,
           ], envVars=aws_credential_env
           ),  // copy-results
 
@@ -358,14 +369,6 @@
             "benchmark.test.delete_cluster",
           ], envVars=aws_credential_env,
           ),  // teardown cluster
-
-          // $.new(_env, _params).buildTemplate("copy-results", [
-          //   "python",
-          //   "-m",
-          //   "benchmark.testing.copy-results",
-          //   "--output_dir=" + benchmarkOutputDir,
-          //   "--bucket=" + params.s3ResultBucket,
-          // ]),  // copy-results
 
           $.new(_env, _params).buildTemplate("delete-test-dir", [
             "bash",

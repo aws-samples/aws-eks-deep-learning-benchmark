@@ -23,6 +23,13 @@ def parse_args():
     type=str,
     help=("Dataset storage backend"))
 
+  parse.add_argument(
+    "--pvc_name",
+    default="dataset-claim",
+    type=str,
+    help=("Dataset persistent volume claim")
+  )
+
   args, _ = parser.parse_known_args()
   return args
 
