@@ -1,6 +1,7 @@
 set -xe
 
 SRC_DIR=$1
+ACTIVE_BRANCH=$2
 
 mkdir -p ${SRC_DIR}
 
@@ -9,7 +10,7 @@ KUBEFLOW_TEST_SRC=${SRC_DIR}/kubeflow/testing
 
 if [ ! -d "$BENCHMARK_SRC" ] ; then
     echo "Downloading Github Repository $BENCHMARK_SRC"
-    git clone https://github.com/jeffwan/ml-benchmark.git $BENCHMARK_SRC
+    git clone https://github.com/jeffwan/ml-benchmark.git -b $ACTIVE_BRANCH $BENCHMARK_SRC
 else
     echo "$BENCHMARK_SRC already exist"
 fi

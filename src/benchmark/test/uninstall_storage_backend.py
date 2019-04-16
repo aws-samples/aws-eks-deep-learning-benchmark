@@ -28,17 +28,11 @@ def parse_args():
   args, _ = parser.parse_known_args()
   return args
 
-def get_cluster_network_info(cluster_manifest_path):
-  with open(cluster_manifest_path, "r") as stream:
-    cluster_spec = yaml.load(stream)
+def get_cluster_network_info(storage_config_path):
+  with open(storage_config_path, "r") as stream:
+    storage_spec = yaml.load(stream)
 
-  worker_nodes = cluster_spec['cluster-state']['worker-nodes']
-  for instance_id, worker_node in worker_nodes.items():
-    vpc_id = worker_node['vpc-id']
-    subnet_id = worker_node['subnet-id']
-    security_group_id = worker_node['security-groups'][0]['group-id']
-
-  return vpc_id, subnet_id, security_group_id
+  return storage_spec['vpc'], storage_spec['subnet'], storage_spec['security-group']
 
 def uninstall_efs(experiment_id, fs_id, mount_target_id):
   """Install Elastic File System"""
@@ -110,11 +104,11 @@ def uninstall_addon():
 
   # read network information from file
   benchmark_dir = str(os.environ['BENCHMARK_DIR'])
-  cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
-  vpc_id, subnet_id, security_group_id = get_cluster_network_info(cluster_manifest_path)
+  storage_config_path = os.path.join(benchmark_dir, "storage-config.yaml")
+  vpc_id, subnet_id, security_group_id = get_cluster_network_info(storage_config_path)
 
   try:
-    fs_id = get_config_entry(cluster_manifest_path, "external-file-system-id")
+    fs_id = get_config_entry(storage_config_path, "external-file-system-id")
   except KeyError as e:
     logging.error("Received error: %s", e)
     logging.info("external-file-system-id does not exists which means storage installation may failed. Skip this step")
@@ -123,20 +117,20 @@ def uninstall_addon():
   # Install storage
   if storage_backend == 'fsx':
     # We want to make sure 988 is open for FSx
-    try:
-      ec2 = boto3.resource('ec2')
-      security_group = ec2.SecurityGroup(security_group_id)
-      security_group.revoke_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=988,ToPort=988)
-    except ClientError as e:
-      logging.error("Received error: %s", e)
-      if e.response['Error']['Code'] != 'InvalidPermission.NotFound':
-        raise
-      else:
-        logging.info("Security Group doesn't have this rule, skip revoking ingress.")
+    # try:
+    #   ec2 = boto3.resource('ec2')
+    #   security_group = ec2.SecurityGroup(security_group_id)
+    #   security_group.revoke_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=988,ToPort=988)
+    # except ClientError as e:
+    #   logging.error("Received error: %s", e)
+    #   if e.response['Error']['Code'] != 'InvalidPermission.NotFound':
+    #     raise
+    #   else:
+    #     logging.info("Security Group doesn't have this rule, skip revoking ingress.")
 
     uninstall_fsx(experiment_id, fs_id)
   elif storage_backend == 'efs':
-    mount_target_id = get_config_entry(cluster_manifest_path, "mount-target-id")
+    mount_target_id = get_config_entry(storage_config_path, "mount-target-id")
     uninstall_efs(experiment_id, fs_id, mount_target_id)
   else:
     raise Exception('Unsupported File Storage')

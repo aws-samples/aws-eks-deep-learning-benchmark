@@ -23,12 +23,11 @@ def parse_args():
     type=str,
     help=("Dataset storage backend"))
 
-  parse.add_argument(
+  parser.add_argument(
     "--pvc_name",
     default="dataset-claim",
     type=str,
-    help=("Dataset persistent volume claim")
-  )
+    help=("Dataset persistent volume claim"))
 
   args, _ = parser.parse_known_args()
   return args
@@ -50,7 +49,7 @@ def install_fsx_driver(fs_id, fsx_dns_name, csi_manifest_folder):
   util.run(["kubectl", "apply", "-f", "manifest.yaml"], cwd=csi_manifest_folder)
 
 
-  pv_path = csi_manifest_folder+"/pv.yaml"
+  pv_path = csi_manifest_folder + "/pv.yaml"
   with open(pv_path, "r") as stream:
     pv_file = yaml.load(stream)
 
@@ -71,7 +70,7 @@ def install_efs_driver(fs_id, csi_manifest_folder):
   util.run(["kubectl", "apply", "-f", "node.yaml"], cwd=csi_manifest_folder)
 
 
-  pv_path = csi_manifest_folder+"/pv.yaml"
+  pv_path = csi_manifest_folder + "/pv.yaml"
   with open(pv_path, "r") as stream:
     pv_file = yaml.load(stream)
 
@@ -103,14 +102,14 @@ def install_addon():
   storage_backend = args.storage_backend
 
   benchmark_dir = str(os.environ['BENCHMARK_DIR'])
-  cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
+  storage_config_path = os.path.join(benchmark_dir, "storage-config.yaml")
 
-  fs_id = get_config_entry(cluster_manifest_path, "external-file-system-id")
+  fs_id = get_config_entry(storage_config_path, "external-file-system-id")
   csi_manifest_folder = os.path.join(base_dir, "src", "jeffwan", "ml-benchmark", "deploy", storage_backend)
 
   # Setup CSI Driver Plugin
   if storage_backend == 'fsx':
-    fsx_dns_name = get_config_entry(cluster_manifest_path, "fsx-dns-name")
+    fsx_dns_name = get_config_entry(storage_config_path, "fsx-dns-name")
     install_fsx_driver(fs_id, fsx_dns_name, csi_manifest_folder)
   elif storage_backend == 'efs':
     install_efs_driver(fs_id, csi_manifest_folder)

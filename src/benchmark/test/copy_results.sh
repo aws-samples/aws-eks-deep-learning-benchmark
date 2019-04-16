@@ -6,8 +6,5 @@ NFS_POD_NAME=$(kubectl --kubeconfig=$BENCHMARK_DIR/kubeconfig get pods -l role=k
 
 kubectl cp ${NAMESPACE}/${NFS_POD_NAME}:/exports/kubebench/experiments ${BENCHMARK_DIR}/experiments
 
-# Delete back up file which are noisy
-rm aws-k8s-tester-eks.yaml.*.backup.yaml
-
 BENCHMARK_ID=$(basename $BENCHMARK_DIR)
 aws s3 cp ${BENCHMARK_DIR}/ ${S3_PATH}/${BENCHMARK_ID}/ --recursive --exclude "src/*"

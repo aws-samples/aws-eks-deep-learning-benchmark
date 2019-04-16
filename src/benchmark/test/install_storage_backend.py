@@ -33,17 +33,11 @@ def parse_args():
   args, _ = parser.parse_known_args()
   return args
 
-def get_cluster_network_info(cluster_manifest_path):
-  with open(cluster_manifest_path, "r") as stream:
-    cluster_spec = yaml.load(stream)
+def get_cluster_network_info(storage_config_path):
+  with open(storage_config_path, "r") as stream:
+    storage_spec = yaml.load(stream)
 
-  worker_nodes = cluster_spec['cluster-state']['worker-nodes']
-  for instance_id, worker_node in worker_nodes.items():
-    vpc_id = worker_node['vpc-id']
-    subnet_id = worker_node['subnet-id']
-    security_group_id = worker_node['security-groups'][0]['group-id']
-
-  return vpc_id, subnet_id, security_group_id
+  return storage_spec['vpc'], storage_spec['subnet'], storage_spec['security-group']
 
 def install_efs(experiment_id, subnet_id, security_group_id):
   """Install Elastic File System"""
@@ -134,7 +128,7 @@ def install_fsx(experiment_id, subnet_id, security_group_id, s3_import_path=None
 
 def add_config_entry(key, value):
   benchmark_dir = str(os.environ['BENCHMARK_DIR'])
-  cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
+  cluster_manifest_path = os.path.join(benchmark_dir, "storage-config.yaml")
 
   with open(cluster_manifest_path, "r") as stream:
     cluster_spec = yaml.load(stream)
@@ -159,22 +153,22 @@ def install_addon():
 
   # read network information from file
   benchmark_dir = str(os.environ['BENCHMARK_DIR'])
-  cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
-  vpc_id, subnet_id, security_group_id = get_cluster_network_info(cluster_manifest_path)
+  storage_config_path = os.path.join(benchmark_dir, "storage-config.yaml")
+  vpc_id, subnet_id, security_group_id = get_cluster_network_info(storage_config_path)
 
   # Install storage
   if storage_backend == 'fsx':
-    # We want to make sure 988 is open for FSx
-    try:
-      ec2 = boto3.resource('ec2')
-      security_group = ec2.SecurityGroup(security_group_id)
-      security_group.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=988,ToPort=988)
-    except ClientError as e:
-      logging.error("Received error: %s", e)
-      if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':
-        raise
-      else:
-        logging.info("Security Group already has this rule, skip authorizing ingress.")
+    # We want to make sure 988 is open for FSx, ClusterSharedSecurityGroup open this port
+    # try:
+    #   ec2 = boto3.resource('ec2')
+    #   security_group = ec2.SecurityGroup(security_group_id)
+    #   security_group.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=988,ToPort=988)
+    # except ClientError as e:
+    #   logging.error("Received error: %s", e)
+    #   if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':
+    #     raise
+    #   else:
+    #     logging.info("Security Group already has this rule, skip authorizing ingress.")
     fs_id = install_fsx(experiment_id, subnet_id, security_group_id, s3_import_path)
     # create efs
   elif storage_backend == 'efs':

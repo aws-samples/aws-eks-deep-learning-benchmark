@@ -19,29 +19,32 @@ def parse_args():
     "--namespace", default='default', type=str, help=("The namespace to use."))
 
   parser.add_argument(
-    "--github_secret_name",
-    default="github-token",
+    "--aws_secret_name",
+    default="aws-secret",
     type=str,
-    help=("The github token to be created."))
+    help=("The aws-secret to be created."))
 
   args, _ = parser.parse_known_args()
   return args
 
   raise TimeoutError("Timeout waiting for service %s to be ready.", service_name)
 
-def install_github_secret(api_client, namespace, secret_name, github_token):
-  """Install Github secret on the cluster.
+def install_aws_secret(api_client, namespace, secret_name, aws_access_key_id, aws_secret_access_key):
+  """Install AWS secret on the cluster.
   Return:
-    secret: Secret for Github token
+    secret: Secret for AWS credentials
   """
-  logging.info("Install Github secret.")
+  logging.info("Install AWS secret %s", secret_name)
 
   corev1_api = k8s_client.CoreV1Api(api_client)
   try:
     secret = k8s_client.V1Secret()
     secret.metadata = k8s_client.V1ObjectMeta(name=secret_name)
     secret.type = "Opaque"
-    secret.data = {"GITHUB_TOKEN": github_token}
+    secret.data = {
+      "AWS_ACCESS_KEY_ID": aws_access_key_id,
+      "AWS_SECRET_ACCESS_KEY": aws_secret_access_key
+      }
 
     corev1_api.create_namespaced_secret(namespace, secret)
   except rest.ApiException as e:
@@ -65,8 +68,10 @@ def install_addon():
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)
 
   # Deploy Github Secret. Can be passed from user's parameter
-  github_token = str(os.environ['GITHUB_TOKEN'])
-  install_github_secret(api_client, namespace, args.github_secret_name, base64.b64encode(github_token))
+  # get from env
+  access_key_id = str(os.environ['AWS_ACCESS_KEY_ID'])
+  access_key = str(os.environ['AWS_SECRET_ACCESS_KEY'])
+  install_aws_secret(api_client, namespace, args.aws_secret_name, base64.b64encode(access_key_id), base64.b64encode(access_key))
 
 if __name__ == "__main__":
   install_addon()

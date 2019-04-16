@@ -6,11 +6,10 @@ ARG GOPATH=/go
 # Install required softwares
 RUN apt-get update && apt-get install -y python-pip python-dev
 
-# Install aws-k8s-tester
+# Install eksctl
 ENV HOME=/root
-RUN mkdir -p $GOPATH/src/github.com/aws/aws-k8s-tester/ && \
-    git clone https://github.com/aws/aws-k8s-tester.git $GOPATH/src/github.com/aws/aws-k8s-tester/ && \
-    go install -v $GOPATH/src/github.com/aws/aws-k8s-tester/cmd/aws-k8s-tester
+RUN curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp && \
+    mv /tmp/eksctl /usr/local/bin
 
 # Install aws-iam-authenticator
 RUN curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator && \
@@ -20,9 +19,9 @@ RUN curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/
 # Install jsonnet
 RUN cd /tmp && \
     wget -O ks.tar.gz \
-    https://github.com/ksonnet/ksonnet/releases/download/v0.11.0/ks_0.11.0_linux_amd64.tar.gz && \
+    https://github.com/ksonnet/ksonnet/releases/download/v0.13.1/ks_0.13.1_linux_amd64.tar.gz && \
     tar -xvf ks.tar.gz && \
-    mv ks_0.11.0_linux_amd64/ks /usr/local/bin && \
+    mv ks_0.13.1_linux_amd64/ks /usr/local/bin && \
     chmod a+x /usr/local/bin/ks
 
 # Install kubectl
@@ -35,7 +34,7 @@ RUN pip install kubernetes \
                 request \
                 pyyaml \
                 boto3 \
-                awscli \ 
+                awscli \
                 google-api-python-client \
                 google-cloud-storage \
                 prometheus_client

@@ -15,18 +15,14 @@ if __name__ == "__main__":
   logging.getLogger().setLevel(logging.INFO)
 
   benchmark_dir = str(os.environ['BENCHMARK_DIR'])
-  cluster_manifest_path = os.path.join(benchmark_dir, "aws-k8s-tester-eks.yaml")
+  cluster_manifest_path = os.path.join(benchmark_dir, "eksctl-cluster-config.yaml")
 
-  deploy_utils.ensure_aws_credentials()
-
-  logs = util.run(["aws-k8s-tester", "eks", "delete", "cluster", "--path", cluster_manifest_path])
-  # logs = util.run(["aws-k8s-tester", "eks", "delete", "cluster", "-h"])
+  logs = util.run(["eksctl", "delete", "cluster", "--config-file=" + cluster_manifest_path])
   logging.info("Successfully delete cluster")
 
-  # Collect logs
   logs_dir = os.path.join(benchmark_dir, "output", "logs")
   log_file = os.path.join(logs_dir, "delete_cluster.log")
   with open(log_file, "w") as text_file:
     text_file.write(logs)
- 
+
   sys.exit(0)

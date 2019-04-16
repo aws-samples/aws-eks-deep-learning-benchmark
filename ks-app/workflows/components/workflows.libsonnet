@@ -151,7 +151,6 @@
           {
             // We use a directory in our NFS share to store our kube config.
             // This way we can configure it on a single step and reuse it on subsequent steps.
-            // make sure it works with aws-k8s-tester
             name: "KUBECONFIG",
             value: benchmarkKubeConfigPath,
           },
@@ -267,7 +266,7 @@
           },
           $.new(_env, _params).buildTemplate(
             "checkout",
-            ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir],
+            ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir, "replace_with_eksctl"],
           ),  // checkout
 
           // $.new(_env, _params).buildTemplate("create-cluster", [
@@ -280,13 +279,8 @@
             "-m",
             "benchmark.test.create_cluster",
             "--region=" + params.region,
-            "--az=" + params.az,
-            placementGroup,
-            "--ami=" + params.ami,
-            "--cluster_version=" + params.clusterVersion,
-            "--instance_type=" + params.instanceType,
-            "--node_count=" + params.nodeCount,
-            #"--cluster_config=" + params.clusterConfig,
+            "--cluster_name=" + params.name,
+            "--cluster_config=" + params.clusterConfig,
           ], envVars=aws_credential_env
           ),  // create cluster
 

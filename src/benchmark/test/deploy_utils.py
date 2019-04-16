@@ -6,6 +6,10 @@ import time
 import uuid
 import base64
 
+import boto3
+import botocore
+from urlparse import urlparse
+
 from kubernetes import client as k8s_client
 from kubernetes import config
 from kubernetes.client import rest
@@ -232,15 +236,16 @@ def cleanup_kb_job(app_dir, job_name):
   util.run(cmd.split(), cwd=app_dir)
 
 
-# TODO: Remove this block once this done
-# https://github.com/aws/aws-k8s-tester/issues/42
-# Add AWS Credential file
-def ensure_aws_credentials():
-  aws_credential_dir = "/root/.aws"
-  aws_credential_path = os.path.join(aws_credential_dir, "credentials")
-  util.makedirs(aws_credential_dir)
+def download_s3_file(s3_file_path, target_file_path):
+  uri = urlparse(s3_file_path)
+  bucket_name = uri.netloc
+  item_key = uri.path.lstrip('/')
 
-  with open(aws_credential_path, "a") as file:
-    file.write("[default]")
-    file.write("aws_access_key_id = " + base64.b64decode(os.environ['AWS_ACCESS_KEY_ID']))
-    file.write("aws_secret_access_key = " + base64.b64decode(os.environ['AWS_SECRET_ACCESS_KEY']))
+  try:
+      s3 = boto3.resource('s3')
+      s3.Bucket(bucket_name).download_file(item_key, target_file_path)
+  except botocore.exceptions.ClientError as e:
+      if e.response['Error']['Code'] == "404":
+          logging.error("The object does not exist.")
+      else:
+          raise Exception("Can not download eksctl cluster config%s".format(s3_file_path))

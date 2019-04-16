@@ -1,0 +1,27 @@
+# For details, Please check eksctl documentation or API specs.
+# https://github.com/weaveworks/eksctl/blob/master/pkg/apis/eksctl.io/v1alpha4/types.go
+
+apiVersion: eksctl.io/v1alpha4
+kind: ClusterConfig
+metadata:
+  # AWS_CLUSTER_NAME and AWS_REGION will override `name` and `region` here.
+  name: benchmark-0415
+  region: us-west-2
+  version: '1.12'
+# If your region has multiple availability zones, you can specify 3 of them.
+availabilityZones: ["us-west-2a", "us-west-2b", "us-west-2c"]
+
+# NodeGroup holds all configuration attributes that are specific to a nodegroup
+# You can have several node group in your cluster.
+nodeGroups:
+  - name: training
+    instanceType: p2.xlarge
+    desiredCapacity: 1
+    minSize: 0
+    maxSize: 2
+    volumeSize: 30
+    availabilityZones: ["us-west-2a"]
+    iam:
+      withAddonPolicies:
+        efs: true
+        fsx: true

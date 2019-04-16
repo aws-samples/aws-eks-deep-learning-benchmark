@@ -39,7 +39,7 @@ def parse_args():
     "--aws_region", default='us-west-2', type=str, help=("The aws region to use."))
 
   parser.add_argument(
-    "--data_pvc", default='null', type=str, help=("The dataset persistent volume claim")
+    "--data_pvc", default='null', type=str, help=("The dataset persistent volume claim"))
 
   args, _ = parser.parse_known_args()
   return args
