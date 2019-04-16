@@ -59,7 +59,7 @@ def install_kubeflow(api_client, app_dir, namespace):
     cmd = "ks param set argo namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
 
-  cmd = "ks param set mpi-operator image mpi-operator/mpi-operator:latest"
+  cmd = "ks param set mpi-operator image mpioperator/mpi-operator:latest"
   util.run(cmd.split(), cwd=app_dir)
 
   apply_command = ["ks", "apply", "default", "-c", "argo",
