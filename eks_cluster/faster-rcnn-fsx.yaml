@@ -1,0 +1,64 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: MPIJob
+metadata:
+  name: faster-rcnn
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - image: seedjeffwan/mask-rcnn:cuda9.0-tf1.12-hvd0.15.2-py3.6
+        imagePullPolicy: Always
+        name: tensorflow-benchmarks
+        command:
+        - mpirun
+        - "-mca"
+        - "btl_tcp_if_exclude"
+        - "lo,docker0"
+        - "-mca"
+        - "pml"
+        - "ob1"
+        - "-mca"
+        - "btl"
+        - "^openib"
+        - "--bind-to"
+        - "socket"
+        - "-map-by"
+        - "slot"
+        - "-x"
+        - "LD_LIBRARY_PATH"
+        - "-x"
+        - "PATH"
+        - "-x"
+        - "NCCL_DEBUG=INFO"
+        - "-x"
+        - "NCCL_MIN_NRINGS=4"
+        - "-x"
+        - "HOROVOD_FUSION_THRESHOLD=16777216"
+        - "-x"
+        - "HOROVOD_HIERARCHICAL_ALLREDUCE=1"
+        - python3
+        - /tensorpack/examples/FasterRCNN/train.py
+        args:
+        - --config
+        - MODE_MASK=True
+        - MODE_FPN=True
+        - BACKBONE.NORM=FreezeBN
+        - TRAINER=horovod
+        - TRAIN.EVAL_PERIOD=1
+        - TRAIN.STEPS_PER_EPOCH=15000
+        - TRAIN.LR_SCHEDULE=[120000, 160000, 180000]
+        - DATA.BASEDIR=/data/coco-2017
+        - DATA.TRAIN='train2017'
+        - DATA.VAL=val2017
+        - BACKBONE.WEIGHTS=/data/coco-2017/ImageNet-R50-AlignPadding.npz
+        resources:
+          limits:
+            nvidia.com/gpu: 8
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /data
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: fsx-claim
