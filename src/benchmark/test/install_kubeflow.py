@@ -147,6 +147,11 @@ def install_addon():
   kubeconfig_path = str(os.environ['KUBECONFIG'])
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)
 
+  kubeflow_app_dir = os.path.join(base_dir, "ks-app")
+  if os.path.exists(kubeflow_app_dir):
+    logging.info("kubeflow app dir already exists. skip install")
+    return
+
   # Setup ksonnet application
   app_dir = deploy_utils.setup_ks_app(base_dir, namespace, api_client, args.kubeflow_registry, args.kubebench_registry)
 

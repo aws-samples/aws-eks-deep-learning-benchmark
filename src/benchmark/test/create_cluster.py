@@ -96,7 +96,7 @@ if __name__ == "__main__":
     except OSError:
       pass
 
-  logs_dir = os.path.join(benchmark_dir, "output", "logs")
+  logs_dir = os.path.join(benchmark_dir, "logs")
   if not os.path.exists(logs_dir):
     try:
       os.makedirs(logs_dir)
