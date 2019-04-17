@@ -1,0 +1,449 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  labels:
+    ksonnet.io/component: workflows
+  name: benchmark-20190222-8
+  namespace: default
+spec:
+  entrypoint: benchmark
+  onExit: exit-handler
+  templates:
+  - name: benchmark
+    steps:
+    - - name: checkout
+        template: checkout
+    - - name: create-cluster
+        template: create-cluster
+    - - name: install-gpu-driver
+        template: install-gpu-driver
+      - name: install-kubeflow
+        template: install-kubeflow
+      - name: install-github-secret
+        template: install-github-secret
+    - - name: experiment-20190221-11
+        template: experiment-20190221-11
+      - name: experiment-20190221-12
+        template: experiment-20190221-12
+      - name: experiment-20190221-13
+        template: experiment-20190221-13
+      - name: experiment-20190221-14
+        template: experiment-20190221-14
+  - name: exit-handler
+    steps:
+    - - name: copy-results
+        template: copy-results
+    - - name: teardown-cluster
+        template: teardown-cluster
+    - - name: delete-test-dir
+        template: delete-test-dir
+  - container:
+      command:
+      - sh
+      - /usr/local/bin/download_source.sh
+      - /mnt/benchmark/benchmark-20190222-7/src
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: checkout
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.create_cluster
+      - --region=us-west-2
+      - --az=us-west-2
+      - --placement_group
+      - --ami=ami-095922d81242d0528
+      - --cluster_version=1.11
+      - --instance_type=p3.2xlarge
+      - --node_count=1
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: create-cluster
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.install_gpu_driver
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: install-gpu-driver
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.install_kubeflow
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: install-kubeflow
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.install_github_secret
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      - --github-secret-name=github-token
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: install-github-secret
+  - container:
+      command:
+      - sh
+      - /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src/benchmark/test/setup_job_config.sh
+      - default
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: setup-job-config
+  - container:
+      command:
+      - sh
+      - /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src/benchmark/test/copy_results.sh
+      - default
+      - dl-benchmark-result
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: copy-results
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.delete_cluster
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: teardown-cluster
+  - container:
+      command:
+      - bash
+      - -c
+      - rm -rf /mnt/benchmark/benchmark-20190222-7
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: delete-test-dir
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.run_benchmark_job
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      - --experiment_name=experiment-20190221-11
+      - --training_job_pkg=mpi-job
+      - --training_job_prototype=mpi-job-custom
+      - --training_job_config=mpi/mpi-job-dummy.yaml
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: experiment-20190221-11
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.run_benchmark_job
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      - --experiment_name=experiment-20190221-12
+      - --training_job_pkg=mpi-job
+      - --training_job_prototype=mpi-job-custom
+      - --training_job_config=mpi/mpi-job-dummy.yaml
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: experiment-20190221-12
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.run_benchmark_job
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      - --experiment_name=experiment-20190221-13
+      - --training_job_pkg=mpi-job
+      - --training_job_prototype=mpi-job-custom
+      - --training_job_config=mpi/mpi-job-dummy.yaml
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: experiment-20190221-13
+  - container:
+      command:
+      - python
+      - -m
+      - benchmark.test.run_benchmark_job
+      - --base_dir=/mnt/benchmark/benchmark-20190222-7
+      - --namespace=default
+      - --experiment_name=experiment-20190221-14
+      - --training_job_pkg=mpi-job
+      - --training_job_prototype=mpi-job-custom
+      - --training_job_config=mpi/mpi-job-dummy.yaml
+      env:
+      - name: BENCHMARK_DIR
+        value: /mnt/benchmark/benchmark-20190222-7
+      - name: PYTHONPATH
+        value: /mnt/benchmark/benchmark-20190222-7/src/jeffwan/ml-benchmark/src:/mnt/benchmark/benchmark-20190222-7/src/kubeflow/testing/py
+      - name: KUBECONFIG
+        value: /mnt/benchmark/benchmark-20190222-7/kubeconfig
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: GITHUB_TOKEN
+            name: github-token
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            key: AWS_ACCESS_KEY_ID
+            name: aws-secret
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            key: AWS_SECRET_ACCESS_KEY
+            name: aws-secret
+      image: seedjeffwan/benchmark-runner:latest
+      volumeMounts:
+      - mountPath: /mnt/benchmark
+        name: benchmark-pv
+    name: experiment-20190221-14
+  volumes:
+  - name: benchmark-pv
+    persistentVolumeClaim:
+      claimName: benchmark-pvc

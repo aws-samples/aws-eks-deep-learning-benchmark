@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: benchmark-nfs-file-server-svc
+  namespace: default
+spec:
+  ports:
+  - name: file-server
+    port: 80
+  selector:
+    role: benchmark-nfs
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: benchmark-nfs-svc
+  namespace: default
+spec:
+  ports:
+  - name: nfs
+    port: 2049
+  - name: mountd
+    port: 20048
+  - name: rpcbind
+    port: 111
+  selector:
+    role: benchmark-nfs
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    role: benchmark-nfs
+  name: benchmark-nfs-deploy
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        role: benchmark-nfs
+    spec:
+      containers:
+      - image: k8s.gcr.io/volume-nfs:0.8
+        name: benchmark-nfs-server
+        ports:
+        - containerPort: 2049
+          name: nfs
+        - containerPort: 20048
+          name: mountd
+        - containerPort: 111
+          name: rpcbind
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /exports
+          name: benchmark
+      - image: httpd:2.4-alpine
+        command:
+        - sh
+        args:
+        - -c
+        - rm -f /usr/local/apache2/logs/httpd.pid ; httpd -DFOREGROUND -c "DocumentRoot
+          /usr/local/apache2/htdocs/benchmark"
+        name: benchmark-nfs-file-server
+        ports:
+        - containerPort: 80
+          name: file-server
+        volumeMounts:
+        - mountPath: /usr/local/apache2/htdocs
+          name: benchmark
+      initContainers:
+      - command:
+        - sh
+        args:
+        - -c
+        - mkdir -p /mnt/benchmark/; 
+        image: busybox
+        name: copy-data
+        volumeMounts:
+        - mountPath: /mnt
+          name: benchmark
+      volumes:
+      - name: benchmark
