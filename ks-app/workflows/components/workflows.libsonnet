@@ -63,7 +63,6 @@
     local enableDatasetStorage = if (params.storageBackend == "fsx") || (params.storageBackend == "efs") then true else false,
     // Only EFS need to copy data, FSx use S3 data repository support in creation
     local needDataCopy = if enableDatasetStorage && (params.storageBackend == "efs") then true else false,
-    local trainingDataSetVolum = params.storageBackend + "-pvc",
 
     // Optional
     local placementGroup = if params.placementGroup == "true" then
@@ -184,7 +183,7 @@
           },
         ],  // volumes
         // onExit specifies the template that should always run when the workflow completes.
-        // onExit: "exit-handler",
+        onExit: "exit-handler",
         templates: [
           {
             name: "benchmark",
@@ -214,6 +213,10 @@
                   name: "install-github-secret",
                   template: "install-github-secret",
                 },
+                {
+                  name: "install-aws-secret",
+                  template: "install-aws-secret",
+                },
                 if enableDatasetStorage then
                 {
                   name: "install-storage-backend",
@@ -221,17 +224,17 @@
                 }
                 else {},
               ],
-              [ if needDataCopy then
-                {
-                  name: "copy-dataset",
-                  template: "copy-dataset",
-                } else {},
-              ],
               [
                 {
                   name: "install-storage-driver",
                   template: "install-storage-driver",
                 },
+              ],
+              [ if needDataCopy then
+                {
+                  name: "copy-dataset",
+                  template: "copy-dataset",
+                } else {},
               ],
               std.map($.buildArgoBenchmarkStep, params.experiments),
             ],
@@ -266,13 +269,8 @@
           },
           $.new(_env, _params).buildTemplate(
             "checkout",
-            ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir, "replace_with_eksctl"],
+            ["sh", "/usr/local/bin/download_source.sh", benchmarkSrcRootDir, "master"],
           ),  // checkout
-
-          // $.new(_env, _params).buildTemplate("create-cluster", [
-          //   "sh", srcDir + "/src/benchmark/test/fake_create.sh",
-          // ], envVars=aws_credential_env
-          // ),  // create cluster
 
           $.new(_env, _params).buildTemplate("create-cluster", [
             "python",
@@ -307,10 +305,17 @@
             "python",
             "-m",
             "benchmark.test.install_github_secret",
-            "--base_dir=" + benchmarkDir,
             "--namespace=" + params.namespace,
             "--github-secret-name=" + params.githubSecretName,
           ], envVars=github_token_env + aws_credential_env
+          ),  // install github secret
+
+          $.new(_env, _params).buildTemplate("install-aws-secret", [
+            "python",
+            "-m",
+            "benchmark.test.install_aws_secret",
+            "--namespace=" + params.namespace,
+          ], envVars=aws_credential_env
           ),  // install github secret
 
           $.new(_env, _params).buildTemplate("install-storage-backend", [
@@ -348,7 +353,10 @@
             "-m",
             "benchmark.test.copy_dataset",
             "--s3_import_path=" + params.s3DatasetPath,
-            "--pvc_name=" + trainingDataSetVolum,
+            "--pvc=" + trainingDatasetVolume,
+            "--region=" + params.region,
+            "--namespace=" + params.namespace,
+            "--runner_image=" + params.image
           ], envVars=aws_credential_env
           ),  // copy-dataset
 

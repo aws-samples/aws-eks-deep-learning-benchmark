@@ -5,10 +5,10 @@
     // Each object below should correspond to a component in the components/ directory
     workflows: {
       s3ResultPath: 's3://kubeflow-pipeline-data/benchmark/',
-      s3DatasetPath: 's3://eks-dl-benchmark',
+      s3DatasetPath: 's3://eks-dl-benchmark/imagenet/',
       clusterConfig: 's3://kubeflow-pipeline-data/benchmark/cluster_config.yaml',
       experiments: [{
-        experiment: 'experiment-20190327-11',
+        experiment: 'experiment-20190415-01',
         trainingJobConfig: 's3://kubeflow-pipeline-data/benchmark/mpi-job-imagenet.yaml',
         trainingJobPkg: 'mpi-job',
         trainingJobPrototype: 'mpi-job-custom',
@@ -16,8 +16,8 @@
       }],
       githubSecretName: 'github-token',
       githubSecretTokenKeyName: 'GITHUB_TOKEN',
-      image: 'seedjeffwan/benchmark-runner:20190415',
-      name: '20190415-04',
+      image: 'seedjeffwan/benchmark-runner:20190415-fix',
+      name: '20190415-07',
       namespace: 'default',
       nfsVolume: 'benchmark-pv',
       nfsVolumeClaim: 'benchmark-pvc',
