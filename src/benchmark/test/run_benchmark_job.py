@@ -85,7 +85,7 @@ def run_benchmark_job():
   util.run(cmd.split(), cwd=app_dir)
   cmd = job_config_prefix +  "controllerImage seedjeffwan/configurator:20190415"
   util.run(cmd.split(), cwd=app_dir)
-  cmd = job_config_prefix +  "postJobImage null"
+  cmd = job_config_prefix +  "postJobImage seedjeffwan/mpi-post-processor:logs"
   util.run(cmd.split(), cwd=app_dir)
   cmd = job_config_prefix +  "postJobArgs null"
   util.run(cmd.split(), cwd=app_dir)
