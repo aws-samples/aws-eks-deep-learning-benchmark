@@ -13,8 +13,7 @@ from kubeflow.testing import util
 from benchmark.test import deploy_utils
 
 def parse_arguments():
-  # create the top-level parser
-  parser = argparse.ArgumentParser(description="Submit benchmark test.")
+  parser = argparse.ArgumentParser(description="Create EKS Cluster.")
   parser.add_argument("--cluster_name", default="benchmark", type=str, help="EKS cluster name.")
   parser.add_argument("--region", default="benchmark", type=str, help="EKS cluster region.")
   parser.add_argument("--cluster_config", default="", type=str, help="EKS cluster configuration.")
@@ -23,7 +22,7 @@ def parse_arguments():
   return args
 
 def get_eks_network_info(cluster_name, az):
-  # Find EKS VPC Information
+  # 1. Find EKS VPC Information
   client = boto3.client('eks')
   response = client.describe_cluster(
     name=cluster_name
@@ -35,7 +34,7 @@ def get_eks_network_info(cluster_name, az):
   def _uppercase_availability_zone(availability_zone):
     return availability_zone.replace('-', '').upper()
 
-  # Filter subnetId user specified in single availability zone
+  # 2. Filter subnetId user specified in single availability zone
   client = boto3.client('ec2')
   subnet_name = "eksctl-{}-cluster/SubnetPublic{}".format(cluster_name, _uppercase_availability_zone(az))
 
@@ -58,7 +57,7 @@ def get_eks_network_info(cluster_name, az):
     raise Exception("can not find subnet " + subnet_name)
   subnet_id = response[0]['SubnetId']
 
-  # find security_group_id
+  # 3. Find security_group_id
   security_groups = client.describe_security_groups(
     Filters=[
         {

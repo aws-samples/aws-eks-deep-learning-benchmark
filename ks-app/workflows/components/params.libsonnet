@@ -12,6 +12,7 @@
         trainingJobConfig: 's3://kubeflow-pipeline-data/benchmark/mpi-job-imagenet.yaml',
         trainingJobPkg: 'mpi-job',
         trainingJobPrototype: 'mpi-job-custom',
+        // Change to upstream once https://github.com/kubeflow/kubeflow/pull/3062 is merged
         trainingJobRegistry: 'github.com/jeffwan/kubeflow/tree/make_kubebench_reporter_optional/kubeflow',
       }],
       githubSecretName: 'github-token',

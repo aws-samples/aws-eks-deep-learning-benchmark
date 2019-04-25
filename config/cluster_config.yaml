@@ -15,7 +15,7 @@ availabilityZones: ["us-west-2a", "us-west-2b", "us-west-2c"]
 # You can have several node group in your cluster.
 nodeGroups:
   - name: training
-    instanceType: p2.xlarge
+    instanceType: p3.16xlarge
     desiredCapacity: 1
     minSize: 0
     maxSize: 2

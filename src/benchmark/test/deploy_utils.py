@@ -237,6 +237,13 @@ def cleanup_kb_job(app_dir, job_name):
 
 
 def download_s3_file(s3_file_path, target_file_path):
+  """Download S3 file to local target path
+  Args:
+    s3_file_path: The S3 file path to download
+    target_file_path: The local path to put download file to.
+  Raises:
+    Exception: Raise exception if file doesn't exist.
+  """
   uri = urlparse(s3_file_path)
   bucket_name = uri.netloc
   item_key = uri.path.lstrip('/')
@@ -248,4 +255,4 @@ def download_s3_file(s3_file_path, target_file_path):
       if e.response['Error']['Code'] == "404":
           logging.error("The object does not exist.")
       else:
-          raise Exception("Can not download eksctl cluster config%s".format(s3_file_path))
+          raise Exception("Can not download S3 file %s".format(s3_file_path))

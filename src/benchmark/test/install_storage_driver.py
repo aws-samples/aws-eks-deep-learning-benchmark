@@ -10,24 +10,9 @@ from kubeflow.testing import util
 
 def parse_args():
   parser = argparse.ArgumentParser()
-
-  parser.add_argument(
-    "--base_dir",
-    default=None,
-    type=str,
-    help=("The source directory of all repositories."))
-
-  parser.add_argument(
-    "--storage_backend",
-    default="fsx",
-    type=str,
-    help=("Dataset storage backend"))
-
-  parser.add_argument(
-    "--pvc_name",
-    default="dataset-claim",
-    type=str,
-    help=("Dataset persistent volume claim"))
+  parser.add_argument("--base_dir", default=None, type=str, help=("The source directory of all repositories."))
+  parser.add_argument("--storage_backend", default="fsx", type=str, help=("Dataset storage backend"))
+  parser.add_argument("--pvc_name", default="dataset-claim", type=str, help=("Dataset persistent volume claim"))
 
   args, _ = parser.parse_known_args()
   return args
@@ -48,7 +33,6 @@ def install_fsx_driver(fs_id, fsx_dns_name, csi_manifest_folder):
   util.run(["kubectl", "apply", "-f", "secret.yaml"], cwd=csi_manifest_folder)
   util.run(["kubectl", "apply", "-f", "manifest.yaml"], cwd=csi_manifest_folder)
 
-
   pv_path = csi_manifest_folder + "/pv.yaml"
   with open(pv_path, "r") as stream:
     pv_file = yaml.load(stream)
@@ -68,7 +52,6 @@ def install_efs_driver(fs_id, csi_manifest_folder):
 
   util.run(["kubectl", "apply", "-f", "controller.yaml"], cwd=csi_manifest_folder)
   util.run(["kubectl", "apply", "-f", "node.yaml"], cwd=csi_manifest_folder)
-
 
   pv_path = csi_manifest_folder + "/pv.yaml"
   with open(pv_path, "r") as stream:

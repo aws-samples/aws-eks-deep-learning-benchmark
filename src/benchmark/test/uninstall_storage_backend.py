@@ -9,21 +9,10 @@ import boto3
 from botocore.exceptions import ClientError
 
 
-# need to delet PV and PVC first?
 def parse_args():
   parser = argparse.ArgumentParser()
-
-  parser.add_argument(
-    "--storage_backend",
-    default="fsx",
-    type=str,
-    help=("Dataset storage backend"))
-
-  parser.add_argument(
-    "--experiment_id",
-    default=None,
-    type=str,
-    help=("Tag value for cluster key"))
+  parser.add_argument("--storage_backend", default="fsx", type=str,help=("Dataset storage backend"))
+  parser.add_argument("--experiment_id", default=None, type=str, help=("The current experiment identifier"))
 
   args, _ = parser.parse_known_args()
   return args

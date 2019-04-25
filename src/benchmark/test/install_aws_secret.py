@@ -15,14 +15,8 @@ from kubeflow.testing import util
 
 def parse_args():
   parser = argparse.ArgumentParser()
-  parser.add_argument(
-    "--namespace", default='default', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--aws_secret_name",
-    default="aws-secret",
-    type=str,
-    help=("The aws-secret to be created."))
+  parser.add_argument("--namespace", default='default', type=str, help=("The namespace to use."))
+  parser.add_argument("--aws_secret_name", default="aws-secret", type=str,help=("The aws secret name to be created."))
 
   args, _ = parser.parse_known_args()
   return args
@@ -67,8 +61,7 @@ def install_addon():
   kubeconfig_path = str(os.environ['KUBECONFIG'])
   api_client = deploy_utils.create_k8s_client(kubeconfig_path)
 
-  # Deploy Github Secret. Can be passed from user's parameter
-  # get from env
+  # Deploy AWS Secret. Get from environment.
   access_key_id = str(os.environ['AWS_ACCESS_KEY_ID'])
   access_key = str(os.environ['AWS_SECRET_ACCESS_KEY'])
   install_aws_secret(api_client, namespace, args.aws_secret_name, base64.b64encode(access_key_id), base64.b64encode(access_key))

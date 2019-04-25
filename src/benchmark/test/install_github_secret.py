@@ -15,14 +15,9 @@ from kubeflow.testing import util
 
 def parse_args():
   parser = argparse.ArgumentParser()
+  parser.add_argument("--namespace", default='default', type=str, help=("The namespace to use."))
   parser.add_argument(
-    "--namespace", default='default', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--github_secret_name",
-    default="github-token",
-    type=str,
-    help=("The github token to be created."))
+    "--github_secret_name", default="github-token", type=str, help=("The github token to be created."))
 
   args, _ = parser.parse_known_args()
   return args

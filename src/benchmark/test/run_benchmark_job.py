@@ -9,37 +9,18 @@ from kubeflow.testing import util  # pylint: disable=no-name-in-module
 
 def parse_args():
   parser = argparse.ArgumentParser()
-  parser.add_argument(
-    "--namespace", default='default', type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--experiment_name", default=None, type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--training_job_registry", default='github.com/kubeflow/kubeflow/tree/master/kubeflow',
-    type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--training_job_pkg", default='mpi-job', type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--training_job_prototype", default='mpi-job-custom', type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--training_job_config", default=None, type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--github_secret_name", default='github-token', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--aws_secret", default='aws-secret', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--aws_access_key_id", default='AWS_ACCESS_KEY_ID', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--aws_secret_access_key", default='AWS_SECRET_ACCESS_KEY', type=str, help=("The namespace to use."))
-
-  parser.add_argument(
-    "--aws_region", default='us-west-2', type=str, help=("The aws region to use."))
-
-  parser.add_argument(
-    "--data_pvc", default='null', type=str, help=("The dataset persistent volume claim"))
+  parser.add_argument("--namespace", default='default', type=str, help=("The namespace to use."))
+  parser.add_argument("--experiment_name", default=None, type=str, help=("The current experiment name."))
+  parser.add_argument("--training_job_registry", default='github.com/kubeflow/kubeflow/tree/master/kubeflow',type=str, help=("Kubeflow ksonnet registry to use."))
+  parser.add_argument("--training_job_pkg", default='mpi-job', type=str, help=("The training job package."))
+  parser.add_argument("--training_job_prototype", default='mpi-job-custom', type=str, help=("The training job prototype."))
+  parser.add_argument("--training_job_config", default=None, type=str, help=("The training job configuration."))
+  parser.add_argument("--github_secret_name", default='github-token', type=str, help=("Github token kubeflow used to avoid rate limit issue."))
+  parser.add_argument("--aws_secret", default='aws-secret', type=str, help=("The aws secret authenticate s3"))
+  parser.add_argument("--aws_access_key_id", default='AWS_ACCESS_KEY_ID', type=str, help=("AWS access key id."))
+  parser.add_argument("--aws_secret_access_key", default='AWS_SECRET_ACCESS_KEY', type=str, help=("AWS secret access key."))
+  parser.add_argument("--aws_region", default='us-west-2', type=str, help=("The aws region to use."))
+  parser.add_argument("--data_pvc", default='null', type=str, help=("The dataset persistent volume claim to mount to training job"))
 
   args, _ = parser.parse_known_args()
   return args
@@ -55,7 +36,7 @@ def run_benchmark_job():
   namespace = args.namespace
   job_name = args.experiment_name
 
-  # set the namespace of kb job to default
+  # Set the namespace of kb job to default
   namespace = "default"
   # Deploy Kubebench
   util.run(["ks", "generate", "kubebench-job", job_name, "--name=" + job_name], cwd=app_dir)

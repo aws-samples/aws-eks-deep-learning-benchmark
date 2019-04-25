@@ -12,23 +12,9 @@ from botocore.exceptions import ClientError
 def parse_args():
   parser = argparse.ArgumentParser()
 
-  parser.add_argument(
-    "--storage_backend",
-    default="fsx",
-    type=str,
-    help=("Dataset storage backend"))
-
-  parser.add_argument(
-    "--experiment_id",
-    default=None,
-    type=str,
-    help=("Tag value for cluster key"))
-
-  parser.add_argument(
-    "--s3_import_path",
-    default=None,
-    type=str,
-    help=("Tag value for cluster key"))
+  parser.add_argument("--storage_backend", default="fsx", type=str, help=("Dataset storage backend"))
+  parser.add_argument("--experiment_id", default=None, type=str, help=("Current experiment identifier"))
+  parser.add_argument("--s3_import_path", default=None, type=str,help=("Dataset path on S3"))
 
   args, _ = parser.parse_known_args()
   return args
@@ -41,7 +27,6 @@ def get_cluster_network_info(storage_config_path):
 
 def install_efs(experiment_id, subnet_id, security_group_id):
   """Install Elastic File System"""
-
   client = boto3.client('efs')
 
   logging.info("Ceating EFS FileSystem Storage")

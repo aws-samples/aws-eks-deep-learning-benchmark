@@ -15,16 +15,11 @@ from urlparse import urlparse
 
 def parse_args():
   parser = argparse.ArgumentParser()
-  parser.add_argument(
-    "--namespace", default='default', type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--s3_import_path", type=str, help=("The S3 dataset to copy to volume."))
-  parser.add_argument(
-    "--pvc", type=str, help=("Target persistent volume claim."))
-  parser.add_argument(
-    "--region", type=str, help=("Target persistent volume claim."))
-  parser.add_argument(
-    "--runner_image", type=str, default="seedjeffwan/benchmark-runner:20190415-fix", help=("Target persistent volume claim."))
+  parser.add_argument("--namespace", default='default', type=str, help=("The namespace to use."))
+  parser.add_argument("--s3_import_path", type=str, help=("The S3 dataset to copy to volume."))
+  parser.add_argument("--pvc", type=str, help=("Target persistent volume claim."))
+  parser.add_argument("--region", type=str, help=("The region of your S3 bucket."))
+  parser.add_argument("--runner_image", type=str, default="seedjeffwan/benchmark-runner:20190415-fix", help=("Base image used for data copy job"))
   args, _ = parser.parse_known_args()
   return args
 
@@ -126,7 +121,7 @@ def create_job_object(runner_image, region, s3_path, pvc_name):
 
   return deployment
 
-def install_addon():
+def copy_dataset():
   """Install Benchmark Addons."""
   logging.basicConfig(level=logging.INFO,
                       format=('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'),
@@ -151,4 +146,4 @@ def install_addon():
   logging.info("Finish copy data from %s to pvc %s", args.s3_import_path, args.pvc)
 
 if __name__ == "__main__":
-  install_addon()
+  copy_dataset()

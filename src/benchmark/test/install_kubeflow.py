@@ -14,31 +14,12 @@ from kubeflow.testing import util
 
 def parse_args():
   parser = argparse.ArgumentParser()
-  parser.add_argument(
-    "--namespace", default='default', type=str, help=("The namespace to use."))
-  parser.add_argument(
-    "--base_dir",
-    default=None,
-    type=str,
-    help=("The source directory of all repositories."))
-
-  parser.add_argument(
-    "--github_secret_name",
-    default="github-token",
-    type=str,
-    help=("The github token to be created."))
-
-  parser.add_argument(
-    "--kubeflow_registry",
-    default="github.com/jeffwan/kubeflow/tree/master/kubeflow",
-    type=str,
-    help=("The github token to be created."))
-
-  parser.add_argument(
-    "--kubebench_registry",
-    default="github.com/kubeflow/kubebench/tree/master/kubebench",
-    type=str,
-    help=("The github token to be created."))
+  parser.add_argument("--namespace", default='default', type=str, help=("The namespace to use."))
+  parser.add_argument("--base_dir", default=None, type=str, help=("The source directory of all repositories."))
+  parser.add_argument("--github_secret_name", default="github-token", type=str, help=("The github token to be created."))
+  # TODO: update to upstream path once PR merged https://github.com/kubeflow/kubeflow/pull/3062
+  parser.add_argument("--kubeflow_registry", default="github.com/jeffwan/kubeflow/tree/master/kubeflow", type=str, help=("The github token to be created."))
+  parser.add_argument("--kubebench_registry", default="github.com/kubeflow/kubebench/tree/master/kubebench", type=str, help=("The github token to be created."))
 
   args, _ = parser.parse_known_args()
   return args
@@ -59,11 +40,11 @@ def install_kubeflow(api_client, app_dir, namespace):
     cmd = "ks param set argo namespace " + namespace
     util.run(cmd.split(), cwd=app_dir)
 
+  #TODO: confirm upstream update to latest.
   cmd = "ks param set mpi-operator image mpioperator/mpi-operator:latest"
   util.run(cmd.split(), cwd=app_dir)
 
-  apply_command = ["ks", "apply", "default", "-c", "argo",
-                   "-c", "tf-job-operator",  "-c", "mpi-operator"]
+  apply_command = ["ks", "apply", "default", "-c", "argo", "-c", "tf-job-operator",  "-c", "mpi-operator"]
 
   util.run(apply_command, cwd=app_dir)
 
@@ -159,7 +140,7 @@ def install_addon():
   install_kubeflow(api_client, app_dir, namespace)
   wait_for_kubeflow_install(api_client, namespace)
 
-  # change the namespace to default to set up nfs-volume and nfs-server
+  # Change the namespace to default to set up nfs-volume and nfs-server
   namespace = "default"
 
   # Deploy NFS for kubebench
