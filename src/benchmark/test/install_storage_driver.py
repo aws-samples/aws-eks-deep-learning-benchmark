@@ -88,7 +88,7 @@ def install_addon():
   storage_config_path = os.path.join(benchmark_dir, "storage-config.yaml")
 
   fs_id = get_config_entry(storage_config_path, "external-file-system-id")
-  csi_manifest_folder = os.path.join(base_dir, "src", "jeffwan", "ml-benchmark", "deploy", storage_backend)
+  csi_manifest_folder = os.path.join(base_dir, "src", "aws-samples", "aws-eks-deep-learning-benchmark", "deploy", storage_backend)
 
   # Setup CSI Driver Plugin
   if storage_backend == 'fsx':

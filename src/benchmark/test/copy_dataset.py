@@ -19,7 +19,7 @@ def parse_args():
   parser.add_argument("--s3_import_path", type=str, help=("The S3 dataset to copy to volume."))
   parser.add_argument("--pvc", type=str, help=("Target persistent volume claim."))
   parser.add_argument("--region", type=str, help=("The region of your S3 bucket."))
-  parser.add_argument("--runner_image", type=str, default="seedjeffwan/benchmark-runner:20190415-fix", help=("Base image used for data copy job"))
+  parser.add_argument("--runner_image", type=str, default="seedjeffwan/benchmark-runner:20190424", help=("Base image used for data copy job"))
   args, _ = parser.parse_known_args()
   return args
 

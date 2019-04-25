@@ -45,7 +45,7 @@
     // Source directory where all repos should be checked out
     local benchmarkSrcRootDir = benchmarkDir + "/src",
     local benchmarkKubeConfigPath = benchmarkDir + "/kubeconfig",
-    local srcDir = benchmarkSrcRootDir + "/jeffwan/ml-benchmark",
+    local srcDir = benchmarkSrcRootDir + "/aws-samples/aws-eks-deep-learning-benchmark",
     // The directory containing the py scripts for testing
     local srcTestPyDir = srcDir + "/src",
     // The directory within the kubeflow_testing submodule containing
