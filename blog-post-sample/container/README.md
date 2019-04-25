@@ -12,14 +12,23 @@ Please replace `${repo}/${image}:${tag}` with your docker tags
 docker build -t ${repo}/${image}:${tag} --build-arg python=3.5 .
 ```
 
-For users using CUDA 9.0 (compatible with Tensorflow V1.12), use different dockerfile 
+For users using AWS Deep Learning Container,
+```
+# You must login to access to the image repository before pulling the image.
+$(aws ecr get-login --no-include-email --region us-east-1 --registry-ids 763104351884)
 
+# Build your container image
+docker build -t ${repo}/${image}:${tag} -f Dockerfile-aws-dl-container .
+```
+
+For users using CUDA 9.0 (compatible with Tensorflow V1.12), use different dockerfile
 ```
 docker build -t ${repo}/${image}:${tag} --build-arg python=3.5 -f Dockerfile-v1.12 .
-
 ```
 
+
 ### Difference between Dockerfile
-- `Dockerfile` uses binary Tensorflow
+- `Dockerfile` uses distributed Tensorflow without AWS optimization
+- `Dockerfiler-aws-dl-container` uses AWS optimized Tensorflow
 - `Dockerfile-custom` build Tensorflow from source with MKL optimization
 - `Dockerfiler-v1.12` use CUDA 9.0 with compatible Tensorflow v1.12
