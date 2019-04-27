@@ -223,7 +223,7 @@ We have [sample scripts](/blog-post-sample) to train deep learning models optimi
 
 ## Contributing Guidance
 
-See our [contributing guidance](/CONTRIBUTING.md)
+See our [contributing guidance](/CONTRIBUTING.md).
 
 ### Test Python module locally
 ```
