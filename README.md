@@ -219,7 +219,7 @@ We have compiled a list of [performance optimizations](/OPTIMIZATIONS.md) that c
 ### Sample workload
 We have [sample scripts](/blog-post-sample) to train deep learning models optimized to run well on [Amazon Elastic Container Service for Kubernetes](https://aws.amazon.com/eks/) that you can run yourself.
 
-- [Sample workload repository](/blog-post-sample).
+- [Sample workload repository](/blog-post-sample)
 
 ## Contributing Guidance
 
