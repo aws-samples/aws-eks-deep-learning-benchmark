@@ -1,6 +1,6 @@
 
-# AWS EKS Deep Learning Benchmark Utility
-The AWS EKS Deep Learning Benchmark Utility is an automated tool for machine learning benchmarking on Kubernetes clusters.
+# EKS Deep Learning Benchmark Utility
+The EKS Deep Learning Benchmark Utility is an automated tool for machine learning benchmarking on Kubernetes clusters.
 
 ## Features
 * Automated end-to-end benchmarking workflow from cluster creation to cluster tear down
