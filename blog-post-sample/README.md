@@ -144,7 +144,6 @@ ks param set ${JOB_NAME} replicas 4
 ks param set ${JOB_NAME} gpusPerReplica 8
 
 ks show default -c ${JOB_NAME} > job.yaml
-
 ```
 
 ## FAQ
