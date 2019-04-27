@@ -1,13 +1,14 @@
 
-# AWS EKS Deep Learning Benchmarking Utility
-The AWS EKS Deep Learning Benchmarking Utility is an automated tool to run machine learning benchmarks on Kubernetes clusters.
+# AWS EKS Deep Learning Benchmark Utility
+The AWS EKS Deep Learning Benchmark Utility is an automated tool for machine learning benchmarking on Kubernetes clusters.
 
 ## Features
 * Automated end-to-end benchmarking workflow from cluster creation to cluster tear down
-* Highly configurable Kubernetes cluster configurations
-* Supports different backend storage including [Amazon Elastic File System](https://aws.amazon.com/efs/) and [Amazon FSx for Lustre](https://aws.amazon.com/fsx/lustre/)
+* Allows highly configurable Kubernetes cluster configurations
+* Supports different backend storage systems including [Amazon Elastic File System](https://aws.amazon.com/efs/) and [Amazon FSx for Lustre](https://aws.amazon.com/fsx/lustre/)
 * Uses S3 to read benchmark configs and write back experiment results
-* Backed by [kubeflow](https://github.com/kubeflow/kubeflow) operators and [kubebench](https://github.com/kubeflow/kubebench). Supports multiple frameworks including:
+* Backed by [kubeflow](https://github.com/kubeflow/kubeflow) operators and [kubebench](https://github.com/kubeflow/kubebench).
+* Supports multiple frameworks including:
   * Tensorflow
   * Tensorflow + Horovod + OpenMPI
   * PyTorch
@@ -27,6 +28,7 @@ To successfully run benchmarks automatically, you need to:
 4. [Configure your GitHub token](#setup-github-token)
 5. [Setup S3 buckets for your benchmark results and (optional) your training data](#setup-s3-buckets)
 6. [Configure your Kubernetes cluster]((#cluster-configuration))
+7. [Apply Optimizations](/OPTIMIZATIONS.md)
 
 ### Setup NFS
 Each benchmark has many steps and needs a file system to sync its status. We setup a NFS to store benchmark configuration, required source files, and benchmark results. All files will be synced to the S3 bucket after the experiment completes.

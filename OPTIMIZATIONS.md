@@ -29,7 +29,7 @@ Open MPI supports processor affinity on a variety of systems through process bin
 8. **Optimize CPU Performance by building Tensorflow with Intel®MKL DNN.**
 Intel® has added optimizations to TensorFlow for Intel® Xeon® and Intel® Xeon Phi™ through the use of the Intel® Math Kernel Library for Deep Neural Networks (Intel® MKL-DNN) optimized primitives. The optimizations also provide speed improvements for Intel's consumer processors, e.g. i5 and i7 Intel processors.
 
-9. **Optimize Tensorflow parallelize data transformation process and parallelism threads.**
+### 9\. Optimize Tensorflow parallelize data transformation process and parallelism threads.
 The optimal value depends on the hardware and training data. A simple heuristic is to use the number of available CPU cores. This corresponding parameter is `num_parallel_calls`.
 
 A p3.16xlarge instance has 64 vCPUs and one training worker uses 8 GPUs, so we calculate *64 / 8 = 8*. Based on the instance type you use, dividing available CPU cores by the number of GPUs will give you right number for setting the value.
