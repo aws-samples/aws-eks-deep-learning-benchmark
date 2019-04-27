@@ -220,6 +220,8 @@ We have compiled a list of [performance optimizations](/OPTIMIZATIONS.md) that c
 
 ## Contributing Guidance
 
+See our [contributing guidance](/CONTRIBUTING.md)
+
 ### Test Python module locally
 ```
 export PYTHONPATH=${YOUR_PATH_TO}/kubeflow/testing/py:{YOUR_PATH_TO}/aws-eks-deep-learning-benchmark/src

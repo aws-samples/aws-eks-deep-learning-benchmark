@@ -2,7 +2,6 @@
 
 This repository contains scripts to train deep learning models optimized to run well on [Amazon Elastic Container Service for Kubernetes](https://aws.amazon.com/eks/).
 
-
 To simplify model building, we use ResNet50 from [deep-learning-models](https://github.com/aws-samples/deep-learning-models). Apart from it, process to setup a EKS cluster and file storage for deep learning is also included.
 
 ## Benchmark Steps
@@ -148,16 +147,15 @@ ks show default -c ${JOB_NAME} > job.yaml
 
 ```
 
-
 ## FAQ
-- *Can I use this to train other models?*
+- **Can I use this to train other models?**
   Currently, it only has job specs for training Resnet50 with Imagenet using Tensorflow. You can use any other models using this setting but plugin different model images.
 
-- *Can I skip imagenet procressing?*
+- **Can I skip imagenet procressing?**
   Yes. But you can only use synthetic data in this case. You don't need to create EFS or LustreFS.
 
-- *Why do you provide EFS and FSx for Lustre? Which one should I use?*
+- **Why do you provide EFS and FSx for Lustre? Which one should I use?**
   Both storage can be used in distributed training. If you consider performance, we recommend you to use Lustre.
 
 ## Questions
-Please create a Github issue here if you have any suggestions or questions.
+Please create a Github issue [here](/issues/new) if you have any suggestions or questions.
