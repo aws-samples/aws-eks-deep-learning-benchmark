@@ -214,7 +214,10 @@ Experiment outputs will sync to S3 after experiment done. You can check configur
 ### Optimizations
 We have compiled a list of [performance optimizations](/OPTIMIZATIONS.md) that can improve the results of your deep learning jobs. Apply these optimizations and re-run the benchmark to see if they affect your results.
 
-[OPTIMIZATIONS.md](/OPTIMIZATIONS.md)
+- [OPTIMIZATIONS.md](/OPTIMIZATIONS.md)
+
+### Sample workload
+We have sample scripts to train deep learning models optimized to run well on [Amazon Elastic Container Service for Kubernetes](https://aws.amazon.com/eks/) that you can run yourself in the [sample workload folder](/blog-post-sample).
 
 ## Contributing Guidance
 
