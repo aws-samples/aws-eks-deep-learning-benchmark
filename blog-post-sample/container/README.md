@@ -5,9 +5,17 @@
 - TENSORFLOW_VERSION=1.13.1
 - OPENMPI_VERSION=4.0.0
 
-### Build Command
+### Use pre-built image
+Building the docker image will take a few minutes. If you'd like to save some time and skip building your own image, we have one already built for you:
+
+```
+seedjeffwan/eks-dl-benchmark:cuda10-tf1.13.1-hvd0.16.0-py3.5
+```
+
+### Build your own image
 Please replace `${repo}/${image}:${tag}` with your docker tags
 
+For users who like to build from scratch (this dockerfile is different from AWS DL Container)
 ```
 docker build -t ${repo}/${image}:${tag} --build-arg python=3.5 .
 ```
