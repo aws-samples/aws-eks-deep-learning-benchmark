@@ -1,31 +1,38 @@
 
-# AWS EKS Deep Learning Benchmark Utility
-AWS EKS Deep Learning Benchmark Utility is a fully automate tool to kick off benchmark without manual duty.
+# EKS Deep Learning Benchmark Utility
+The EKS Deep Learning Benchmark Utility is an automated tool for machine learning benchmarking on Kubernetes clusters.
 
 ## Features
-* Fully automated e2e benchmark workflow from cluster creation to cluster tear down
-* Highly configurable kubernetes cluster configurations
-* Support different backend storage like Elastic File System and FSx for Lustre
-* Use S3 to read benchmark configs and write back experiments results
-* Backed by [kubeflow](https://github.com/kubeflow/kubeflow) operators and [kubebench](https://github.com/kubeflow/kubebench) and different jobs are supported
+* Automated end-to-end benchmarking workflow from cluster creation to cluster tear down
+* Allows highly configurable Kubernetes cluster configurations
+* Supports different backend storage systems including [Amazon Elastic File System](https://aws.amazon.com/efs/) and [Amazon FSx for Lustre](https://aws.amazon.com/fsx/lustre/)
+* Uses S3 to read benchmark configs and write back experiment results
+* Backed by [kubeflow](https://github.com/kubeflow/kubeflow) operators and [kubebench](https://github.com/kubeflow/kubebench).
+* Supports multiple frameworks including:
   * Tensorflow
   * Tensorflow + Horovod + OpenMPI
   * PyTorch
   * MxNet
-* Exit handlers to copy immediate results and tear down cluster
-* Run multiple experiments in parrallel
+* Exit handlers to copy immediate results and automatically tear down cluster
+* Run multiple experiments in parallel
 
 ### High Level Design
 ![high-level-design](high-level-design.png)
 
 
 ## Prerequisite to run benchmarks
-To successfully run benchmark automatically, you need to install following resources in your kubernetes cluster.
+To successfully run benchmarks automatically, you need to:
+1. [Setup NFS](#setup-nfs)
+2. [Install Argo Workflow](#install-argo-workflow)
+3. [Configure AWS credentials](#setup-aws-credentials)
+4. [Configure your GitHub token](#setup-github-token)
+5. [Setup S3 buckets for your benchmark results and (optional) your training data](#setup-s3-buckets)
+6. [Configure your Kubernetes cluster]((#cluster-configuration))
 
 ### Setup NFS
-Benchmark has many steps and it need files to sync status. We setup this NFS to store benchmark configuration, required source files and benchmark results. All files will be synced to S3 bucket after experiment done.
+Each benchmark has many steps and needs a file system to sync its status. We setup a NFS to store benchmark configuration, required source files, and benchmark results. All files will be synced to the S3 bucket after the experiment completes.
 
-> Note: This is not a real NFS, it's actually a website frontend server to play as NFS. Please check [source](https://github.com/kubernetes/examples/tree/master/staging/volumes/nfs) for details.
+> Note: This is not a real NFS, it's actually a website frontend server emulate as NFS. Please check [source](https://github.com/kubernetes/examples/tree/master/staging/volumes/nfs) for details.
 
 ```bash
 kubectl create -f deploy/benchmark-nfs-svc.yaml
@@ -36,7 +43,7 @@ kubectl create -f deploy/benchmark-nfs-volume.yaml
 ```
 
 ### Install Argo workflow
-Argo Workflows is an open source container-native workflow engine for orchestrating parallel jobs on Kubernetes. Benchmark experiment is an argo workflow and we use this to orchestrate our job and manage jobs.
+Argo Workflows is an open source container-native workflow engine for orchestrating parallel jobs on Kubernetes. Each benchmark experiment is an argo workflow and we use this to orchestrate and manage our jobs.
 
 ```bash
 kubectl create ns argo
@@ -46,7 +53,7 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.1/
 kubectl port-forward deployment/argo-ui 8001:8001 -n argo
 ```
 
-### Setup AWS Credential
+### Setup AWS Credentials
 Replace `YOUR_AWS_ACCESS_KEY_ID` and `YOUR_AWS_SECRET_ACCESS_KEY` with your own aws credentials.
 This account needs to have at least following permissions. It will be used in the experiment to create EKS cluster, setup data storage like EFS or FSx for Lustre, write to S3 buckets.
 
@@ -67,7 +74,7 @@ Firstly, please create a bucket for benchmark results. `copy-result` step will s
 If you like to use real storage for testing, Please create another S3 bucket and upload your training files there. Please set `s3DatasetBucket` and `storageBackend` in the configuration and workflow will automatically create backend storage like [Amazon Elastic File System](https://aws.amazon.com/efs/) or [Amazon FSx For Lustre](https://aws.amazon.com/fsx/lustre/) and sync files in `s3DatasetBucket` to the storage. During training, storage will be mounted as [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to worker pods.
 
 
-### Configurable fields
+### Cluster configuration
 
 Kubernetes & Worker Node:
 - clusterConfig: 's3://kubeflow-pipeline-data/benchmark/cluster_config.yaml'
@@ -102,7 +109,6 @@ nodeGroups:
         fsx: true
     # Node Group AMI Id
     # ami: xxxxx
-
 ```
 
 Training model:
@@ -116,7 +122,7 @@ Training model:
     - trainingJobPrototype: 'mpi-job-custom',
     - trainingJobRegistry: 'github.com/jeffwan/kubeflow/tree/make_kubebench_reporter_optional/kubeflow
 
-Training job configuration
+Training job configuration:
 ```yaml
 args: --batch_size=256,--model=resnet50,--num_batches=100,--fp16,--display_every=50,--lr_decay_mode=poly,--intra_op_parallelism_threads=2,--inter_op_parallelism_threads=8,--num_parallel_calls=8,--data_dir=data_dir=/kubebench/data/imagenet/train
 command: mpirun,-mca,btl_tcp_if_exclude,lo,-mca,pml,ob1,-mca,btl,^openib,--bind-to,none,-map-by,slot,-x,LD_LIBRARY_PATH,-x,PATH,-x,NCCL_DEBUG=INFO,-x,NCCL_MIN_NRINGS=4,-x,HOROVOD_FUSION_THRESHOLD=16777216,-x,HOROVOD_HIERARCHICAL_ALLREDUCE=1,python,models/resnet/tensorflow/train_imagenet_resnet_hvd.py
@@ -128,22 +134,22 @@ replicas: 1
 ```
 
 
-## Run benchmmark jobs
+## Run the benchmmark jobs
 
 You have two ways to configure your benchmark jobs.
 
-* Update your workflow setting using `ks` command
+1. Update your workflow setting using `ks` command
 
   ```bash
   ks param set workflows storageBackend fsx
   ```
 
-* Update benchmark workflow manifest directly
+2. Update benchmark workflow manifest directly
   ```
   vim ks-app/components/params.libsonnet
   ```
 
-Here's an example of full configurations in `ks-app/components/params.libsonnet`.
+Here's an example of full configurations in `ks-app/components/params.libsonnet`:
 
 ```yaml
 s3ResultPath: 's3://kubeflow-pipeline-data/benchmark/',
@@ -173,13 +179,11 @@ storageBackend: 'fsx',
 kubeflowRegistry: 'github.com/jeffwan/kubeflow/tree/make_kubebench_reporter_optional/kubeflow'
 ```
 
-For `clusterConfig` and `trainingJobConfig`, please check [config](./config) for example. Please also change `name` for every benchmark.
+For `clusterConfig` and `trainingJobConfig`, please check [config](./config) for example. Be sure to change the `name` value for every benchmark.
 
 Once you are done, you can run `ks show default -c workflows > workflow.yaml`. If your input is valid, you will see workflow.yaml in your folder.
 
 This is an argo workflow and you can easily submit to your cluster by `kubectl apply -f workflow.yaml`.
-
-
 
 ### Benchmark Workflow
 
@@ -207,8 +211,19 @@ Experiment outputs will sync to S3 after experiment done. You can check configur
     └── start_cluster.log
 
 ```
+### Optimizations
+We have compiled a list of [performance optimizations](/OPTIMIZATIONS.md) that can improve the results of your deep learning jobs. Apply these optimizations and re-run the benchmark to see if they affect your results.
+
+- [OPTIMIZATIONS.md](/OPTIMIZATIONS.md)
+
+### Sample workload
+We have [sample scripts](/blog-post-sample) to train deep learning models optimized to run well on [Amazon Elastic Container Service for Kubernetes](https://aws.amazon.com/eks/) that you can run yourself.
+
+- [Sample workload repository](/blog-post-sample)
 
 ## Contributing Guidance
+
+See our [contributing guidance](/CONTRIBUTING.md).
 
 ### Test Python module locally
 ```
