@@ -2,6 +2,8 @@
 # AWS EKS Deep Learning Benchmark Utility
 The AWS EKS Deep Learning Benchmark Utility is an automated tool for machine learning benchmarking on Kubernetes clusters.
 
+There are also a number of [performance optimizations](/OPTIMIZATIONS.md) that you can use to improve your results.
+
 ## Features
 * Automated end-to-end benchmarking workflow from cluster creation to cluster tear down
 * Allows highly configurable Kubernetes cluster configurations
@@ -28,7 +30,6 @@ To successfully run benchmarks automatically, you need to:
 4. [Configure your GitHub token](#setup-github-token)
 5. [Setup S3 buckets for your benchmark results and (optional) your training data](#setup-s3-buckets)
 6. [Configure your Kubernetes cluster]((#cluster-configuration))
-7. [Apply Optimizations](/OPTIMIZATIONS.md)
 
 ### Setup NFS
 Each benchmark has many steps and needs a file system to sync its status. We setup a NFS to store benchmark configuration, required source files, and benchmark results. All files will be synced to the S3 bucket after the experiment completes.
@@ -212,6 +213,10 @@ Experiment outputs will sync to S3 after experiment done. You can check configur
     └── start_cluster.log
 
 ```
+### Optimizations
+We have compiled a list of [performance optimizations](/OPTIMIZATIONS.md) that can improve the results of your deep learning jobs. Apply these optimizations and re-run the benchmark to see if they affect your results.
+
+[OPTIMIZATIONS.md](/OPTIMIZATIONS.md)
 
 ## Contributing Guidance
 
