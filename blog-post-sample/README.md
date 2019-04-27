@@ -158,4 +158,4 @@ ks show default -c ${JOB_NAME} > job.yaml
   Both storage can be used in distributed training. If you consider performance, we recommend you to use Lustre.
 
 ## Questions
-Please create a Github issue [here](/issues/new) if you have any suggestions or questions.
+Please create a Github issue [here](https://github.com/aws-samples/aws-eks-deep-learning-benchmark/issues/new) if you have any suggestions or questions.
