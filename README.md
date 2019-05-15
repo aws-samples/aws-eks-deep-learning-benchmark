@@ -232,6 +232,10 @@ export PYTHONPATH=${YOUR_PATH_TO}/kubeflow/testing/py:{YOUR_PATH_TO}/aws-eks-dee
 python -m benchmark.test.install_storage_backend --storage_backend=fsx --experiment_id=001 --s3_import_path=s3://eks-dl-benchmark
 ```
 
+## Security disclosures
+
+If you think you’ve found a potential security issue, please do not post it in the Issues.  Instead, please follow the instructions [here](https://aws.amazon.com/security/vulnerability-reporting/) or [email AWS security directly](mailto:aws-security@amazon.com).
+
 ## Acknowledgements
 
 Thanks [Xinyuan Huang](https://github.com/xyhuang) from Cisco AI team for the help and support on kubebench integration. We also want to ackownledge Kubeflow community and we reuse some of logics and utils of [Test infrastructure and tooling for Kubeflow](https://github.com/kubeflow/testing).
