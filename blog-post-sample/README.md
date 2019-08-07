@@ -82,7 +82,7 @@ In order to leverage this, `ksonnet` is required in your OS, please follow [kson
 ➜ ks pkg install kubeflow/mpi-job@master
 
 # Generate Manifests
-➜ ks generate mpi-operator mpi-operator
+➜ ks prototype use mpi-operator --name=mpi-operator --image=mpioperator/mpi-operator:0.1.0 mpi-operator
 
 # Deploy
 ➜ ks apply default -c mpi-operator
